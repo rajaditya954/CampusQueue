@@ -75,14 +75,27 @@ export function AdminDashboard() {
 
   const activeCounter = useMemo(() => {
     if (selectedCounterId === 'ALL') {
+      let globalStatus = 'CLOSED';
+      if (counters.length > 0) {
+        const hasOpen = counters.some(c => c.status === 'OPEN');
+        const hasPaused = counters.some(c => c.status === 'PAUSED');
+        if (hasOpen) {
+          globalStatus = 'OPEN';
+        } else if (hasPaused) {
+          globalStatus = 'PAUSED';
+        } else {
+          globalStatus = 'CLOSED';
+        }
+      }
+
       return {
         id: 'ALL',
         name: 'All Counter Stations (Global Real-Time Queue)',
         code: 'ALL',
-        status: 'OPEN',
+        status: globalStatus,
       };
     }
-    return counters.find(c => c.id === selectedCounterId) || counters[0] || { id: 'ALL', name: 'Global Queue', status: 'OPEN' };
+    return counters.find(c => c.id === selectedCounterId) || counters[0] || { id: 'ALL', name: 'Global Queue', status: 'CLOSED' };
   }, [counters, selectedCounterId]);
 
   const currentlyServing = useMemo(() => {
