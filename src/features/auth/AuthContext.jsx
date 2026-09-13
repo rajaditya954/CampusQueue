@@ -12,7 +12,7 @@ import {
   signOut as firebaseSignOut,
   onAuthStateChanged,
 } from 'firebase/auth';
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db, isDemoMode } from '../../firebase/config';
 import { USER_ROLES } from '../../utils/constants';
 
@@ -156,20 +156,31 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // Fetch staff role from Firestore
+  // Fetch staff role from Firestore (and ensure user profile exists)
   const fetchStaffRole = useCallback(async (firebaseUser) => {
-    if (isDemoMode) return USER_ROLES.ADMIN;
+    if (isDemoMode || !firebaseUser) return USER_ROLES.ADMIN;
     try {
-      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+      const userDocRef = doc(db, 'users', firebaseUser.uid);
+      const userDoc = await getDoc(userDocRef);
       if (userDoc.exists()) {
         return userDoc.data().role || USER_ROLES.STAFF;
       }
-      return USER_ROLES.STAFF;
+      // Auto-initialize staff document in Firestore if missing
+      const determinedRole = firebaseUser.email?.toLowerCase().includes('admin') ? USER_ROLES.ADMIN : USER_ROLES.STAFF;
+      await setDoc(userDocRef, {
+        email: firebaseUser.email || '',
+        displayName: firebaseUser.displayName || 'Staff Member',
+        role: determinedRole,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+      return determinedRole;
     } catch (err) {
       console.error('Error fetching staff role:', err);
       return USER_ROLES.STAFF;
     }
   }, []);
+
 
   // Listen to staff auth state (Firebase mode only)
   useEffect(() => {

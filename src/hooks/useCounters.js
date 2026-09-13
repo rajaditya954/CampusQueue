@@ -61,12 +61,18 @@ export function useCounters() {
 
   const setCounterStatus = useCallback(async (counterId, status) => {
     try {
+      setError(null);
       await firestoreSetCounterStatus(counterId, status);
     } catch (err) {
       console.error('setCounterStatus error:', err);
-      setError(err.message);
+      const userFriendlyMsg = err.message?.includes('permission')
+        ? "You don't have permission to change this counter."
+        : err.message || 'Failed to update counter status.';
+      setError(userFriendlyMsg);
+      throw err;
     }
   }, []);
+
 
   // ─── Query helpers (computed from live snapshot data) ───────────
   const getCountersForService = useCallback(

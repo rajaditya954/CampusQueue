@@ -408,12 +408,27 @@ export async function firestoreUpdateCounter(counterId, updates) {
  * Set counter operational status (OPEN / PAUSED / CLOSED).
  */
 export async function firestoreSetCounterStatus(counterId, status) {
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    throw new Error('Unauthenticated: You must be logged in as staff/admin to change counter status.');
+  }
+
   const counterRef = doc(db, COLLECTIONS.COUNTERS, counterId);
-  await updateDoc(counterRef, {
-    status,
-    updatedAt: serverTimestamp(),
-  });
+  try {
+    await updateDoc(counterRef, {
+      status,
+      updatedAt: serverTimestamp(),
+      updatedBy: currentUser.uid,
+    });
+  } catch (err) {
+    console.error('firestoreSetCounterStatus error:', err);
+    if (err.code === 'permission-denied' || err.message?.includes('permissions')) {
+      throw new Error("You don't have permission to change this counter.");
+    }
+    throw err;
+  }
 }
+
 
 // ─── Student Operations ─────────────────────────────────────────────
 
