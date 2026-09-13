@@ -54,7 +54,7 @@ service cloud.firestore {
 
     // ─── User Profiles ───────────────────────────────────────────────────
     match /users/{userId} {
-      allow read: if isAuthenticated() && (request.auth.uid == userId || isStaffOrAdmin());
+      allow read: if isAuthenticated();
       allow create, update: if isAuthenticated() && (request.auth.uid == userId || isStaffOrAdmin());
       allow delete: if isAdmin();
     }
@@ -69,7 +69,7 @@ service cloud.firestore {
     // ─── Global Configuration ───────────────────────────────────────────
     match /config/{configId} {
       allow read: if true;
-      allow create, update: if configId == 'tokenCounters' || isStaffOrAdmin();
+      allow create, update: if isAuthenticated();
       allow delete: if isAdmin();
     }
 
@@ -77,10 +77,10 @@ service cloud.firestore {
     match /queueEntries/{entryId} {
       allow read: if true;
 
-      // Allow authenticated students to create their own queue entry with initial status 'waiting'
+      // Allow authenticated students to create queue entries (handles both uppercase 'WAITING' & lowercase 'waiting')
       allow create: if isAuthenticated()
-        && request.resource.data.status == 'waiting'
-        && request.resource.data.studentUid == request.auth.uid;
+        && (request.resource.data.status == 'WAITING' || request.resource.data.status == 'waiting')
+        && (request.resource.data.studentUid == request.auth.uid || isStaffOrAdmin());
 
       // Staff/Admin can update or delete queue entries (call next, complete, skip, etc.)
       // Students can also update/cancel their own queue entry
@@ -91,8 +91,8 @@ service cloud.firestore {
     // ─── Service History ─────────────────────────────────────────────────
     match /serviceHistory/{historyId} {
       allow read: if true;
-      allow create: if isStaffOrAdmin();
-      allow update, delete: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if isStaffOrAdmin();
     }
 
     // ─── Default Deny ────────────────────────────────────────────────────
@@ -101,4 +101,5 @@ service cloud.firestore {
     }
   }
 }
+
 
