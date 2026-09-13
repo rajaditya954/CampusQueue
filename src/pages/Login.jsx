@@ -259,7 +259,74 @@ export function Login() {
             </Button>
           </Box>
 
-          {/* Demo elements removed per user request */}
+          <Divider sx={{ my: 1.5 }}>
+            <Typography variant="caption" color="text.secondary" fontWeight={700} sx={{ px: 1, fontSize: '0.62rem', letterSpacing: 0.5 }}>
+              DEMO ACCOUNTS
+            </Typography>
+          </Divider>
+
+          {/* Demo Student IDs */}
+          <Card variant="outlined" sx={{ borderRadius: 2.5, bgcolor: 'rgba(248,250,252,0.7)', borderColor: '#e2e8f0', mb: 1.5 }}>
+            <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="subtitle2" fontWeight={700} color="text.primary" sx={{ fontSize: '0.78rem' }}>
+                  Demo Student IDs
+                </Typography>
+                <Chip label="Testing" size="small" variant="outlined" sx={{ fontSize: '0.6rem', height: 18 }} />
+              </Box>
+
+              <Stack spacing={0.8}>
+                {firestoreStudents.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary" align="center" sx={{ py: 1.5, fontSize: '0.85rem' }}>
+                    No student records found. Enter your Student ID above.
+                  </Typography>
+                ) : (
+                  firestoreStudents.map((demo) => (
+                    <Box
+                      key={demo.studentId}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        p: 1,
+                        px: 1.5,
+                        borderRadius: 2,
+                        bgcolor: 'rgba(255,255,255,0.7)',
+                        border: '1px solid #f1f5f9',
+                        transition: 'all 0.15s',
+                        '&:hover': { bgcolor: 'white', borderColor: '#e2e8f0' },
+                      }}
+                    >
+                      <Box>
+                        <Typography variant="subtitle2" fontWeight={700} sx={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>
+                          {demo.studentId}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem' }}>
+                          {demo.name}
+                        </Typography>
+                      </Box>
+
+                      <Button
+                        size="small"
+                        variant="text"
+                        onClick={() => handleUseDemoId(demo.studentId)}
+                        sx={{
+                          borderRadius: 2,
+                          textTransform: 'none',
+                          fontWeight: 600,
+                          fontSize: '0.8rem',
+                          minWidth: 48,
+                          color: '#2563eb',
+                        }}
+                      >
+                        Use
+                      </Button>
+                    </Box>
+                  ))
+                )}
+              </Stack>
+            </CardContent>
+          </Card>
         </Paper>
       </Container>
     </Box>
