@@ -1,0 +1,793 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Box, Typography, Button, Container, Grid, Card, Stack,
+  Chip, Avatar, Paper,
+} from '@mui/material';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import InsightsIcon from '@mui/icons-material/Insights';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import TouchAppIcon from '@mui/icons-material/TouchApp';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import PersonIcon from '@mui/icons-material/Person';
+import CalculateIcon from '@mui/icons-material/Calculate';
+import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
+import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
+import ScheduleIcon from '@mui/icons-material/Schedule';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import DescriptionIcon from '@mui/icons-material/Description';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
+import InfoIcon from '@mui/icons-material/Info';
+import { useQueue } from '../hooks/useQueue';
+import { useServices } from '../hooks/useServices';
+import coverBg from '../assets/campus_cover_bg.png';
+
+const ESTIMATOR_SERVICES = [
+  { id: 'doc_verify', name: 'Document Verification', icon: <DescriptionIcon sx={{ fontSize: '0.95rem' }} />, avgMin: 8, desc: 'Original certificate check' },
+  { id: 'fee_payment', name: 'Fee & Cash Payment', icon: <PaymentsIcon sx={{ fontSize: '0.95rem' }} />, avgMin: 3, desc: 'Fee & fine collection' },
+  { id: 'cert_req', name: 'Certificate Request', icon: <WorkspacePremiumIcon sx={{ fontSize: '0.95rem' }} />, avgMin: 5, desc: 'Degree certificate issue' },
+  { id: 'gen_inquiry', name: 'General Inquiry', icon: <InfoIcon sx={{ fontSize: '0.95rem' }} />, avgMin: 4, desc: 'Student assistance desk' },
+];
+
+export default function Landing() {
+  const navigate = useNavigate();
+  const { queueEntries } = useQueue();
+  const { servicesMap } = useServices();
+
+  const [selectedServiceId, setSelectedServiceId] = useState('doc_verify');
+
+  // Filter actual waiting entries strictly from Firestore / DB
+  const waitingEntriesFromDB = (queueEntries || [])
+    .filter(e => e.status === 'WAITING')
+    .map((item, idx) => ({
+      id: item.id,
+      tokenNumber: item.tokenNumber || `T-${item.id?.substring(0, 4)}`,
+      serviceName: servicesMap[item.serviceId]?.name || item.serviceName || 'Campus Service',
+      duration: servicesMap[item.serviceId]?.avgTimeMinutes || item.avgTimeMinutes || 5,
+      step: `0${idx + 1}`,
+    }));
+
+  const selectedService = ESTIMATOR_SERVICES.find(s => s.id === selectedServiceId) || ESTIMATOR_SERVICES[0];
+  const totalCalculatedWait = waitingEntriesFromDB.reduce((acc, curr) => acc + (curr.duration || 5), 0);
+  const peopleAheadCount = waitingEntriesFromDB.length;
+
+  return (
+    <Box sx={{ minHeight: '100vh', fontFamily: 'Inter, system-ui, sans-serif', bgcolor: '#0b1329', overflowX: 'hidden' }}>
+      {/* ─── Fixed Sleek Top Bar ────────────────────────────────────────── */}
+      <Box
+        component="header"
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1200,
+          py: 1.1,
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          bgcolor: 'rgba(255, 255, 255, 0.88)',
+          borderBottom: '1px solid rgba(226, 232, 240, 0.8)',
+          boxShadow: '0 2px 10px rgba(15, 23, 42, 0.03)',
+        }}
+      >
+        <Container maxWidth="lg" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: { xs: 2, sm: 3, md: 4 } }}>
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', gap: 1.2, cursor: 'pointer' }}
+            onClick={() => navigate('/')}
+          >
+            <Avatar
+              sx={{
+                width: 32,
+                height: 32,
+                bgcolor: '#2563eb',
+                color: 'white',
+                fontWeight: 800,
+                fontSize: '0.78rem',
+                boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
+              }}
+            >
+              CQ
+            </Avatar>
+            <Typography variant="subtitle2" fontWeight={800} color="#0f172a" sx={{ fontSize: '0.92rem', letterSpacing: '-0.01em' }}>
+              CampusQueue
+            </Typography>
+          </Box>
+
+          {/* Center Nav Links */}
+          <Stack direction="row" spacing={0.5} sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
+            <Button
+              onClick={() => navigate('/login')}
+              sx={{ color: '#475569', textTransform: 'none', fontWeight: 600, fontSize: '0.82rem', borderRadius: 2, px: 1.8, py: 0.5, '&:hover': { bgcolor: 'rgba(37, 99, 235, 0.06)', color: '#2563eb' } }}
+            >
+              Student Portal
+            </Button>
+            <Button
+              onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+              sx={{ color: '#475569', textTransform: 'none', fontWeight: 600, fontSize: '0.82rem', borderRadius: 2, px: 1.8, py: 0.5, '&:hover': { bgcolor: 'rgba(37, 99, 235, 0.06)', color: '#2563eb' } }}
+            >
+              How It Works
+            </Button>
+            <Button
+              onClick={() => navigate('/demo')}
+              startIcon={<AutoAwesomeIcon sx={{ fontSize: '0.82rem !important' }} />}
+              sx={{
+                color: '#2563eb',
+                textTransform: 'none',
+                fontWeight: 700,
+                fontSize: '0.82rem',
+                bgcolor: 'rgba(37, 99, 235, 0.08)',
+                borderRadius: 2,
+                px: 1.8,
+                py: 0.5,
+                '&:hover': { bgcolor: 'rgba(37, 99, 235, 0.15)' },
+              }}
+            >
+              Demo Mode
+            </Button>
+          </Stack>
+
+          {/* Right Actions */}
+          <Stack direction="row" spacing={1.2} sx={{ alignItems: 'center' }}>
+            <Button
+              variant="text"
+              onClick={() => navigate('/admin/login')}
+              sx={{
+                textTransform: 'none',
+                fontWeight: 600,
+                color: '#64748b',
+                px: 1.5,
+                py: 0.5,
+                fontSize: '0.82rem',
+                display: { xs: 'none', sm: 'inline-flex' },
+                '&:hover': { color: '#0f172a', bgcolor: 'rgba(0,0,0,0.04)' },
+              }}
+            >
+              Staff Login
+            </Button>
+
+            <Button
+              variant="contained"
+              startIcon={<PersonIcon sx={{ fontSize: '0.9rem !important' }} />}
+              onClick={() => navigate('/login')}
+              sx={{
+                borderRadius: 5,
+                px: 2,
+                py: 0.6,
+                textTransform: 'none',
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                bgcolor: '#2563eb',
+                boxShadow: '0 2px 10px rgba(37, 99, 235, 0.28)',
+                '&:hover': { bgcolor: '#1d4ed8' },
+              }}
+            >
+              Get Token
+            </Button>
+          </Stack>
+        </Container>
+      </Box>
+
+      {/* ─── Hero Section ─────────────────────────────────────────────────── */}
+      <Box
+        sx={{
+          pt: { xs: 11, md: 13 },
+          pb: { xs: 7, md: 9 },
+          position: 'relative',
+          overflow: 'hidden',
+          bgcolor: '#f8fafc',
+        }}
+      >
+        {/* Ambient Glowing Color Orbs */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '-10%',
+            right: '-5%',
+            width: '450px',
+            height: '450px',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(37, 99, 235, 0.2) 0%, rgba(37, 99, 235, 0.03) 60%, transparent 80%)',
+            filter: 'blur(45px)',
+            pointerEvents: 'none',
+            zIndex: 1,
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: '-10%',
+            left: '-5%',
+            width: '480px',
+            height: '480px',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(124, 58, 237, 0.16) 0%, rgba(124, 58, 237, 0.02) 60%, transparent 80%)',
+            filter: 'blur(50px)',
+            pointerEvents: 'none',
+            zIndex: 1,
+          }}
+        />
+
+        {/* Cover Background Image */}
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `url(${coverBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            opacity: 0.6,
+            zIndex: 0,
+          }}
+        />
+
+        {/* Dynamic Translucent Overlay */}
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(135deg, rgba(239,246,255,0.72) 0%, rgba(248,250,252,0.6) 50%, rgba(237,233,254,0.68) 100%)',
+            zIndex: 1,
+          }}
+        />
+
+        {/* Focused Container */}
+        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, px: { xs: 2.5, sm: 3, md: 4 } }}>
+          <Grid container spacing={{ xs: 3, md: 5 }} sx={{ alignItems: 'center' }}>
+            {/* Left Column: Headline & Value Proposition */}
+            <Grid size={{ xs: 12, md: 6.5 }}>
+              <Box className="fade-in">
+
+
+                {/* Headline with Gradient Text */}
+                <Typography
+                  variant="h1"
+                  sx={{
+                    fontSize: { xs: '2rem', sm: '2.5rem', md: '2.8rem' },
+                    fontWeight: 900,
+                    lineHeight: 1.12,
+                    letterSpacing: '-0.025em',
+                    color: '#0f172a',
+                    mb: 2,
+                  }}
+                >
+                  4 people ahead<br />
+                  <Box
+                    component="span"
+                    sx={{
+                      background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                    }}
+                  >
+                    ≠ 4 minutes.
+                  </Box>
+                </Typography>
+
+                <Typography
+                  variant="h4"
+                  sx={{
+                    fontSize: { xs: '1rem', sm: '1.15rem', md: '1.2rem' },
+                    fontWeight: 700,
+                    lineHeight: 1.4,
+                    mb: 1.8,
+                    color: '#1e293b',
+                  }}
+                >
+                  Know your exact wait time before stepping in line.
+                </Typography>
+
+                {/* Subtitle */}
+                <Typography
+                  variant="body1"
+                  sx={{
+                    fontSize: { xs: '0.875rem', md: '0.92rem' },
+                    lineHeight: 1.6,
+                    mb: 3,
+                    maxWidth: 460,
+                    color: '#475569',
+                    fontWeight: 450,
+                  }}
+                >
+                  CampusQueue calculates real time based on actual service durations of everyone ahead — so you never waste a single minute standing around.
+                </Typography>
+
+                {/* CTAs */}
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+                  <Button
+                    variant="contained"
+                    size="medium"
+                    onClick={() => navigate('/login')}
+                    endIcon={<ArrowForwardIcon sx={{ fontSize: '0.9rem !important' }} />}
+                    sx={{
+                      px: 3.2,
+                      py: 1.2,
+                      fontSize: '0.875rem',
+                      fontWeight: 800,
+                      borderRadius: 5,
+                      bgcolor: '#0f172a',
+                      color: 'white',
+                      boxShadow: '0 4px 18px rgba(15, 23, 42, 0.25)',
+                      '&:hover': { bgcolor: '#1e293b', transform: 'translateY(-1px)' },
+                      textTransform: 'none',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    Join Queue Now
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    size="medium"
+                    onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+                    sx={{
+                      px: 2.8,
+                      py: 1.2,
+                      fontSize: '0.875rem',
+                      fontWeight: 700,
+                      borderRadius: 5,
+                      color: '#334155',
+                      borderColor: '#cbd5e1',
+                      bgcolor: 'rgba(255, 255, 255, 0.8)',
+                      backdropFilter: 'blur(8px)',
+                      textTransform: 'none',
+                      '&:hover': { bgcolor: 'white', borderColor: '#94a3b8', color: '#0f172a' },
+                    }}
+                  >
+                    How it works ↓
+                  </Button>
+                </Stack>
+
+
+              </Box>
+            </Grid>
+
+            {/* Right Column: Sleek Glassmorphic Wait Estimator Card */}
+            <Grid size={{ xs: 12, md: 5.5 }}>
+              <Paper
+                elevation={0}
+                className="slide-up"
+                sx={{
+                  maxWidth: { xs: '100%', sm: 440, md: 460 },
+                  width: '100%',
+                  mx: 'auto',
+                  ml: { md: 'auto' },
+                  borderRadius: 4,
+                  bgcolor: 'rgba(255, 255, 255, 0.94)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: '1.5px solid rgba(226, 232, 240, 0.9)',
+                  boxShadow: '0 20px 45px -10px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(255,255,255,0.7) inset',
+                  overflow: 'hidden',
+                  position: 'relative',
+                }}
+              >
+                {/* Widget Header */}
+                <Box
+                  sx={{
+                    px: 3.5,
+                    py: 1.4,
+                    bgcolor: '#0f172a',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CalculateIcon sx={{ color: '#60a5fa', fontSize: '1rem' }} />
+                    <Typography variant="subtitle2" fontWeight={800} sx={{ letterSpacing: 0.5, fontSize: '0.75rem', color: '#ffffff' }}>
+                      WAIT ESTIMATOR
+                    </Typography>
+                  </Box>
+
+
+                </Box>
+
+                <Box sx={{ p: 1.8 }}>
+                  {/* Step 1: Select Service */}
+                  <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.5, mb: 0.8, display: 'block', fontSize: '0.64rem' }}>
+                    1. Select Your Service
+                  </Typography>
+
+                  <Grid container spacing={1} sx={{ mb: 1.8 }}>
+                    {ESTIMATOR_SERVICES.map((serv) => {
+                      const isSelected = serv.id === selectedServiceId;
+                      return (
+                        <Grid size={{ xs: 6 }} key={serv.id}>
+                          <Paper
+                            elevation={0}
+                            onClick={() => setSelectedServiceId(serv.id)}
+                            sx={{
+                              p: 1.2,
+                              px: 1.6,
+                              borderRadius: '10px !important',
+                              border: isSelected ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
+                              bgcolor: isSelected ? '#eff6ff' : '#ffffff',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease',
+                              '&:hover': {
+                                borderColor: isSelected ? '#2563eb' : '#cbd5e1',
+                                bgcolor: isSelected ? '#eff6ff' : '#f8fafc',
+                              },
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                              <Box sx={{ color: isSelected ? '#2563eb' : '#64748b', display: 'flex', pt: 0.1, flexShrink: 0 }}>
+                                {serv.icon}
+                              </Box>
+                              <Box>
+                                <Typography variant="subtitle2" fontWeight={700} color={isSelected ? '#1e40af' : '#334155'} sx={{ fontSize: '0.74rem', lineHeight: 1.25 }}>
+                                  {serv.name}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.64rem', display: 'block', mt: 0.3, fontWeight: 500 }}>
+                                  ~{serv.avgMin} min avg
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Paper>
+                        </Grid>
+                      );
+                    })}
+                  </Grid>
+
+                  {/* Step 2: Queue Breakdown */}
+                  <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.5, mb: 0.8, display: 'block', fontSize: '0.64rem' }}>
+                    2. Queue Ahead ({peopleAheadCount} People)
+                  </Typography>
+
+                  <Stack spacing={0.6} sx={{ mb: 1.5 }}>
+                    {waitingEntriesFromDB.length === 0 ? (
+                      <Box sx={{ p: 1.2, textAlign: 'center', bgcolor: '#f8fafc', borderRadius: 2, border: '1px dashed #cbd5e1' }}>
+                        <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ fontSize: '0.75rem' }}>
+                          No queue currently — instant counter service!
+                        </Typography>
+                      </Box>
+                    ) : (
+                      waitingEntriesFromDB.map((item) => (
+                        <Box
+                          key={item.id || item.tokenNumber}
+                          sx={{
+                            p: 0.8,
+                            px: 1.2,
+                            borderRadius: 1.8,
+                            bgcolor: '#f8fafc',
+                            border: '1px solid #e2e8f0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                            <Typography variant="caption" fontWeight={800} color="#94a3b8" sx={{ fontSize: '0.65rem' }}>
+                              {item.step}
+                            </Typography>
+                            <Typography variant="body2" fontWeight={600} color="#334155" sx={{ fontSize: '0.74rem' }}>
+                              #{item.tokenNumber} · {item.serviceName}
+                            </Typography>
+                          </Box>
+                          <Chip
+                            label={`+${item.duration}m`}
+                            size="small"
+                            sx={{ bgcolor: '#e2e8f0', color: '#334155', fontWeight: 700, fontSize: '0.6rem', height: 18 }}
+                          />
+                        </Box>
+                      ))
+                    )}
+                  </Stack>
+
+                  {/* Total Wait Result */}
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 1.4,
+                      bgcolor: '#f0fdf4',
+                      border: '1px solid #bbf7d0',
+                      borderRadius: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      mb: 1.2,
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="caption" color="#166534" fontWeight={700} display="block" sx={{ textTransform: 'uppercase', fontSize: '0.6rem', letterSpacing: 0.4 }}>
+                        Calculated Wait Time
+                      </Typography>
+                      <Typography variant="h6" fontWeight={800} color="#14532d" sx={{ fontSize: '1.1rem', mt: 0.1 }}>
+                        ~{totalCalculatedWait} min
+                      </Typography>
+                    </Box>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => navigate('/login')}
+                      endIcon={<ArrowForwardIcon sx={{ fontSize: '0.75rem !important' }} />}
+                      sx={{
+                        bgcolor: '#16a34a',
+                        color: 'white',
+                        fontWeight: 700,
+                        borderRadius: 5,
+                        px: 1.6,
+                        py: 0.6,
+                        fontSize: '0.74rem',
+                        textTransform: 'none',
+                        boxShadow: '0 2px 6px rgba(22, 163, 74, 0.25)',
+                        '&:hover': { bgcolor: '#15803d' },
+                      }}
+                    >
+                      Get Token
+                    </Button>
+                  </Paper>
+
+                  {/* Worth Waiting Insight */}
+                  <Box
+                    sx={{
+                      p: 1,
+                      px: 1.2,
+                      bgcolor: totalCalculatedWait <= 20 ? 'rgba(37, 99, 235, 0.05)' : 'rgba(245, 158, 11, 0.07)',
+                      borderRadius: 1.8,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                      <CheckCircleIcon sx={{ fontSize: '0.8rem', color: totalCalculatedWait <= 20 ? '#2563eb' : '#d97706' }} />
+                      <Typography variant="caption" fontWeight={600} color={totalCalculatedWait <= 20 ? '#1e40af' : '#92400e'} sx={{ fontSize: '0.68rem' }}>
+                        {totalCalculatedWait <= 20 ? 'Optimal time to visit' : 'Moderate queue volume'}
+                      </Typography>
+                    </Stack>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.64rem' }}>
+                      Desk open 9 AM - 5 PM
+                    </Typography>
+                  </Box>
+                </Box>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* ─── How It Works Section ────────────────────────────────────────── */}
+      <Box
+        id="how-it-works"
+        sx={{
+          py: { xs: 7, md: 9 },
+          background: 'linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%)',
+          borderTop: '1px solid #e2e8f0',
+          position: 'relative',
+        }}
+      >
+        <Container maxWidth="lg" sx={{ px: { xs: 2.5, sm: 3, md: 4 } }}>
+          <Box sx={{ textAlign: 'center', mb: 5 }}>
+            <Typography
+              variant="overline"
+              sx={{ color: '#2563eb', fontWeight: 800, fontSize: '0.72rem', letterSpacing: 2, mb: 0.5, display: 'block' }}
+            >
+              SIMPLE PROCESS
+            </Typography>
+            <Typography variant="h3" sx={{ fontWeight: 800, color: '#0f172a', fontSize: { xs: '1.4rem', md: '1.85rem' }, letterSpacing: '-0.02em' }}>
+              Four simple steps to your turn
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.8, maxWidth: 420, mx: 'auto', fontSize: '0.88rem' }}>
+              From line request to counter — track everything on your phone.
+            </Typography>
+          </Box>
+
+          <Grid container spacing={2.5}>
+            {[
+              { step: '01', title: 'Select Service', desc: 'Choose your desk service request type', icon: <TouchAppIcon sx={{ fontSize: 20 }} /> },
+              { step: '02', title: 'Get Token', desc: 'Instant digital token with live position', icon: <ConfirmationNumberIcon sx={{ fontSize: 20 }} /> },
+              { step: '03', title: 'Track Wait', desc: 'Real-time minutes countdown updates', icon: <InsightsIcon sx={{ fontSize: 20 }} /> },
+              { step: '04', title: 'Walk Up', desc: 'Head to counter when your number is called', icon: <CheckCircleIcon sx={{ fontSize: 20 }} /> },
+            ].map((item) => (
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={item.step}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2.5,
+                    height: '100%',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px !important',
+                    bgcolor: '#ffffff',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 10px rgba(15, 23, 42, 0.03)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    '&:hover': {
+                      borderColor: '#3b82f6',
+                      boxShadow: '0 8px 24px rgba(37, 99, 235, 0.1)',
+                      transform: 'translateY(-3px)',
+                    },
+                  }}
+                >
+                  <Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                      <Box
+                        sx={{
+                          width: 38,
+                          height: 38,
+                          borderRadius: '8px',
+                          bgcolor: 'rgba(37, 99, 235, 0.08)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#2563eb',
+                        }}
+                      >
+                        {item.icon}
+                      </Box>
+                      <Chip
+                        label={item.step}
+                        size="small"
+                        sx={{
+                          bgcolor: '#eff6ff',
+                          color: '#2563eb',
+                          fontWeight: 800,
+                          fontSize: '0.68rem',
+                          height: 22,
+                          borderRadius: '6px',
+                        }}
+                      />
+                    </Box>
+                    <Typography variant="subtitle1" fontWeight={800} color="#0f172a" sx={{ fontSize: '0.92rem', mb: 0.6, lineHeight: 1.3 }}>
+                      {item.title}
+                    </Typography>
+                    <Typography variant="body2" color="#64748b" sx={{ fontSize: '0.8rem', lineHeight: 1.5 }}>
+                      {item.desc}
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* ─── Capabilities Section ─────────────────────────────────────────── */}
+      <Box
+        sx={{
+          py: { xs: 7, md: 9 },
+          background: 'linear-gradient(180deg, #edf2f7 0%, #ffffff 100%)',
+          borderTop: '1px solid #e2e8f0',
+        }}
+      >
+        <Container maxWidth="lg" sx={{ px: { xs: 2.5, sm: 3, md: 4 } }}>
+          <Box sx={{ textAlign: 'center', mb: 5 }}>
+            <Typography
+              variant="overline"
+              sx={{ color: '#2563eb', fontWeight: 800, fontSize: '0.72rem', letterSpacing: 2, mb: 0.5, display: 'block' }}
+            >
+              SMART FEATURES
+            </Typography>
+            <Typography variant="h3" sx={{ fontWeight: 800, color: '#0f172a', fontSize: { xs: '1.4rem', md: '1.85rem' }, letterSpacing: '-0.02em' }}>
+              Built for stress-free campus visits
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.8, maxWidth: 420, mx: 'auto', fontSize: '0.88rem' }}>
+              Transparent real-time time estimates instead of unpredictable waiting rooms.
+            </Typography>
+          </Box>
+
+          <Grid container spacing={2.5}>
+            {[
+              { icon: <AccessTimeIcon sx={{ fontSize: 20 }} />, title: 'Personalized Estimates', desc: 'Calculated using actual services ahead — not head count.' },
+              { icon: <ElectricBoltIcon sx={{ fontSize: 20 }} />, title: 'Live Queue Updates', desc: 'Position and time refresh live as staff process tokens.' },
+              { icon: <ScheduleIcon sx={{ fontSize: 20 }} />, title: 'Counter Closing Alerts', desc: 'Know if you will be served before office hours end.' },
+              { icon: <TrendingUpIcon sx={{ fontSize: 20 }} />, title: 'Adaptive Accuracy', desc: 'Average times calibrate continuously to staff speed.' },
+            ].map((f, i) => (
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={i}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2.5,
+                    height: '100%',
+                    borderRadius: '12px !important',
+                    border: '1px solid #e2e8f0',
+                    bgcolor: '#ffffff',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'flex-start',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 10px rgba(15, 23, 42, 0.03)',
+                    '&:hover': {
+                      borderColor: '#3b82f6',
+                      boxShadow: '0 8px 24px rgba(37, 99, 235, 0.08)',
+                      transform: 'translateY(-3px)',
+                    },
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: '8px',
+                      bgcolor: 'rgba(37, 99, 235, 0.08)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#2563eb',
+                      mb: 2,
+                    }}
+                  >
+                    {f.icon}
+                  </Box>
+                  <Typography variant="subtitle1" fontWeight={800} color="#0f172a" sx={{ fontSize: '0.92rem', mb: 0.6, lineHeight: 1.3 }}>
+                    {f.title}
+                  </Typography>
+                  <Typography variant="body2" color="#64748b" sx={{ fontSize: '0.8rem', lineHeight: 1.5 }}>
+                    {f.desc}
+                  </Typography>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* ─── Call To Action Section ───────────────────────────────────────── */}
+      <Box
+        sx={{
+          py: { xs: 6, md: 8 },
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+          color: 'white',
+          textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '-50%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '500px',
+            height: '500px',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(37, 99, 235, 0.22) 0%, transparent 70%)',
+            filter: 'blur(45px)',
+            pointerEvents: 'none',
+          }}
+        />
+
+        <Container maxWidth="sm" sx={{ position: 'relative', zIndex: 2, px: { xs: 2.5, sm: 3 } }}>
+          <Typography variant="h3" sx={{ fontWeight: 800, mb: 1.2, fontSize: { xs: '1.4rem', md: '1.8rem' }, letterSpacing: '-0.02em', color: '#ffffff' }}>
+            Ready to skip the line?
+          </Typography>
+          <Typography variant="body2" sx={{ mb: 3.5, fontSize: '0.88rem', color: '#94a3b8', lineHeight: 1.55 }}>
+            Get your digital token now and track your wait in real time.
+          </Typography>
+          <Button
+            variant="contained"
+            size="medium"
+            onClick={() => navigate('/login')}
+            endIcon={<ArrowForwardIcon sx={{ fontSize: '0.85rem !important' }} />}
+            sx={{
+              px: 3.5,
+              py: 1.2,
+              fontSize: '0.88rem',
+              fontWeight: 700,
+              borderRadius: 5,
+              bgcolor: '#2563eb',
+              boxShadow: '0 4px 16px rgba(37, 99, 235, 0.35)',
+              '&:hover': { bgcolor: '#1d4ed8' },
+              textTransform: 'none',
+            }}
+          >
+            Get Your Token
+          </Button>
+        </Container>
+      </Box>
+
+      {/* ─── Footer ──────────────────────────────────────────────────────── */}
+      <Box sx={{ py: 2.5, textAlign: 'center', borderTop: '1px solid #1e293b', bgcolor: '#0b1329' }}>
+        <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 400 }}>
+          CampusQueue © {new Date().getFullYear()} · Smart Campus Queue Management
+        </Typography>
+      </Box>
+    </Box>
+  );
+}

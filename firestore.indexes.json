@@ -1,0 +1,23 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "queueEntries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "counterId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "joinedAt",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
