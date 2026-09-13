@@ -60,9 +60,15 @@ export function ServiceDetails() {
     }
   }, [supportedCounters, selectedCounterId]);
 
+  const targetCounterId = selectedCounterId || supportedCounters[0]?.id;
+  const currentCounter = useMemo(() => counters.find(c => c.id === targetCounterId), [counters, targetCounterId]);
+  const isCounterClosed = currentCounter ? currentCounter.status === 'CLOSED' : (supportedCounters.length > 0 && supportedCounters.every(c => c.status === 'CLOSED'));
+  const isCounterExplicitlyOpen = currentCounter ? currentCounter.status === 'OPEN' : supportedCounters.some(c => c.status === 'OPEN');
+
   const activeEntry = useMemo(() => {
     return getStudentActiveEntry(studentSessionId, studentId);
   }, [studentSessionId, studentId, getStudentActiveEntry, queueEntries]);
+
 
   const estimationRaw = useEstimation(serviceId, selectedCounterId || (supportedCounters[0]?.id));
 
@@ -293,7 +299,7 @@ export function ServiceDetails() {
                   variant="contained"
                   size="large"
                   startIcon={<ConfirmationNumberIcon />}
-                  disabled={estimationData?.feasibility === 'TOO_LATE' || supportedCounters.length === 0}
+                  disabled={supportedCounters.length === 0 || isCounterClosed || (estimationData?.feasibility === 'TOO_LATE' && !isCounterExplicitlyOpen)}
                   onClick={handleJoinQueue}
                   sx={{
                     py: 1.5,
@@ -301,16 +307,21 @@ export function ServiceDetails() {
                     fontWeight: 700,
                     fontSize: '1rem',
                     textTransform: 'none',
-                    background: 'linear-gradient(135deg, #1a73e8 0%, #1565c0 100%)',
-                    boxShadow: '0 4px 14px rgba(26, 115, 232, 0.3)',
+                    background: isCounterClosed
+                      ? '#94a3b8'
+                      : 'linear-gradient(135deg, #1a73e8 0%, #1565c0 100%)',
+                    boxShadow: isCounterClosed ? 'none' : '0 4px 14px rgba(26, 115, 232, 0.3)',
                   }}
                 >
                   {supportedCounters.length === 0
                     ? 'No Counter Available'
-                    : estimationData?.feasibility === 'TOO_LATE'
+                    : isCounterClosed
+                    ? 'Counter Closed - Cannot Join'
+                    : (estimationData?.feasibility === 'TOO_LATE' && !isCounterExplicitlyOpen)
                     ? 'Counter Closing - Cannot Join'
                     : 'Get Digital Token Now'}
                 </Button>
+
               </Paper>
             )}
           </Stack>
