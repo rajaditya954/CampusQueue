@@ -95,7 +95,7 @@ export default function Landing() {
             </Typography>
           </Box>
 
-          {/* Center Nav Links */}
+          {/* Center Nav Links (Desktop) */}
           <Stack direction="row" spacing={0.5} sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
             <Button
               onClick={() => navigate('/login')}
@@ -109,38 +109,42 @@ export default function Landing() {
             >
               How It Works
             </Button>
+          </Stack>
+
+          {/* Right Actions - Always visible on Mobile & Desktop */}
+          <Stack direction="row" spacing={{ xs: 0.5, sm: 1 }} sx={{ alignItems: 'center' }}>
             <Button
+              variant="outlined"
+              size="small"
               onClick={() => navigate('/demo')}
-              startIcon={<AutoAwesomeIcon sx={{ fontSize: '0.82rem !important' }} />}
+              startIcon={<AutoAwesomeIcon sx={{ fontSize: '0.85rem !important' }} />}
               sx={{
-                color: '#2563eb',
                 textTransform: 'none',
                 fontWeight: 700,
-                fontSize: '0.92rem',
-                bgcolor: 'rgba(37, 99, 235, 0.08)',
-                borderRadius: 2,
-                px: 1.8,
+                color: '#2563eb',
+                borderColor: '#93c5fd',
+                px: { xs: 1, sm: 1.5 },
                 py: 0.5,
-                '&:hover': { bgcolor: 'rgba(37, 99, 235, 0.15)' },
+                fontSize: { xs: '0.75rem', sm: '0.88rem' },
+                bgcolor: 'rgba(37, 99, 235, 0.04)',
+                '&:hover': { bgcolor: 'rgba(37, 99, 235, 0.12)', borderColor: '#2563eb' },
               }}
             >
               Demo Mode
             </Button>
-          </Stack>
 
-          {/* Right Actions */}
-          <Stack direction="row" spacing={1.2} sx={{ alignItems: 'center' }}>
             <Button
               variant="text"
+              size="small"
               onClick={() => navigate('/admin/login')}
               sx={{
                 textTransform: 'none',
                 fontWeight: 600,
                 color: '#64748b',
-                px: 1.5,
+                px: { xs: 0.8, sm: 1.5 },
                 py: 0.5,
-                fontSize: '0.92rem',
-                display: { xs: 'none', sm: 'inline-flex' },
+                fontSize: { xs: '0.75rem', sm: '0.92rem' },
+                display: 'inline-flex',
                 '&:hover': { color: '#0f172a', bgcolor: 'rgba(0,0,0,0.04)' },
               }}
             >
@@ -149,15 +153,16 @@ export default function Landing() {
 
             <Button
               variant="contained"
-              startIcon={<PersonIcon sx={{ fontSize: '1rem !important' }} />}
+              size="small"
+              startIcon={<PersonIcon sx={{ fontSize: '0.9rem !important' }} />}
               onClick={() => navigate('/login')}
               sx={{
                 borderRadius: 5,
-                px: 2.5,
-                py: 0.7,
+                px: { xs: 1.2, sm: 2.5 },
+                py: 0.6,
                 textTransform: 'none',
                 fontWeight: 700,
-                fontSize: '0.9rem',
+                fontSize: { xs: '0.75rem', sm: '0.9rem' },
                 bgcolor: '#2563eb',
                 boxShadow: '0 2px 10px rgba(37, 99, 235, 0.28)',
                 '&:hover': { bgcolor: '#1d4ed8' },

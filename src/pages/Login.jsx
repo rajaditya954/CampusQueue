@@ -149,8 +149,8 @@ export function Login() {
             boxShadow: '0 16px 40px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(255,255,255,0.6) inset',
           }}
         >
-          {/* Back Button */}
-          <Box sx={{ mb: 1 }}>
+          {/* Back & Staff Login Header */}
+          <Box sx={{ mb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Button
               startIcon={<ArrowBackIcon sx={{ fontSize: '0.8rem !important' }} />}
               onClick={() => navigate('/')}
@@ -168,6 +168,23 @@ export function Login() {
               }}
             >
               Home
+            </Button>
+
+            <Button
+              startIcon={<AdminPanelSettingsIcon sx={{ fontSize: '0.85rem !important' }} />}
+              onClick={() => navigate('/admin/login')}
+              color="primary"
+              size="small"
+              sx={{
+                borderRadius: 1.8,
+                textTransform: 'none',
+                fontWeight: 700,
+                fontSize: '0.75rem',
+                py: 0.2,
+                px: 1,
+              }}
+            >
+              Staff Login
             </Button>
           </Box>
 
