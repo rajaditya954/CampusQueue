@@ -64,7 +64,7 @@ export default function Landing() {
           left: 0,
           right: 0,
           zIndex: 1200,
-          py: 1.1,
+          py: 1.5,
           backdropFilter: 'blur(16px)',
           WebkitBackdropFilter: 'blur(16px)',
           bgcolor: 'rgba(255, 255, 255, 0.88)',
@@ -72,25 +72,25 @@ export default function Landing() {
           boxShadow: '0 2px 10px rgba(15, 23, 42, 0.03)',
         }}
       >
-        <Container maxWidth="lg" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: { xs: 2, sm: 3, md: 4 } }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: { xs: 2, sm: 4, md: 6, lg: 8 }, maxWidth: '100%', mx: 'auto' }}>
           <Box
             sx={{ display: 'flex', alignItems: 'center', gap: 1.2, cursor: 'pointer' }}
             onClick={() => navigate('/')}
           >
             <Avatar
               sx={{
-                width: 32,
-                height: 32,
+                width: 36,
+                height: 36,
                 bgcolor: '#2563eb',
                 color: 'white',
                 fontWeight: 800,
-                fontSize: '0.78rem',
+                fontSize: '0.85rem',
                 boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
               }}
             >
               CQ
             </Avatar>
-            <Typography variant="subtitle2" fontWeight={800} color="#0f172a" sx={{ fontSize: '0.92rem', letterSpacing: '-0.01em' }}>
+            <Typography variant="subtitle2" fontWeight={800} color="#0f172a" sx={{ fontSize: '1.05rem', letterSpacing: '-0.01em' }}>
               CampusQueue
             </Typography>
           </Box>
@@ -99,13 +99,13 @@ export default function Landing() {
           <Stack direction="row" spacing={0.5} sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
             <Button
               onClick={() => navigate('/login')}
-              sx={{ color: '#475569', textTransform: 'none', fontWeight: 600, fontSize: '0.82rem', borderRadius: 2, px: 1.8, py: 0.5, '&:hover': { bgcolor: 'rgba(37, 99, 235, 0.06)', color: '#2563eb' } }}
+              sx={{ color: '#475569', textTransform: 'none', fontWeight: 600, fontSize: '0.92rem', borderRadius: 2, px: 2, py: 0.6, '&:hover': { bgcolor: 'rgba(37, 99, 235, 0.06)', color: '#2563eb' } }}
             >
               Student Portal
             </Button>
             <Button
               onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-              sx={{ color: '#475569', textTransform: 'none', fontWeight: 600, fontSize: '0.82rem', borderRadius: 2, px: 1.8, py: 0.5, '&:hover': { bgcolor: 'rgba(37, 99, 235, 0.06)', color: '#2563eb' } }}
+              sx={{ color: '#475569', textTransform: 'none', fontWeight: 600, fontSize: '0.92rem', borderRadius: 2, px: 2, py: 0.6, '&:hover': { bgcolor: 'rgba(37, 99, 235, 0.06)', color: '#2563eb' } }}
             >
               How It Works
             </Button>
@@ -116,7 +116,7 @@ export default function Landing() {
                 color: '#2563eb',
                 textTransform: 'none',
                 fontWeight: 700,
-                fontSize: '0.82rem',
+                fontSize: '0.92rem',
                 bgcolor: 'rgba(37, 99, 235, 0.08)',
                 borderRadius: 2,
                 px: 1.8,
@@ -139,7 +139,7 @@ export default function Landing() {
                 color: '#64748b',
                 px: 1.5,
                 py: 0.5,
-                fontSize: '0.82rem',
+                fontSize: '0.92rem',
                 display: { xs: 'none', sm: 'inline-flex' },
                 '&:hover': { color: '#0f172a', bgcolor: 'rgba(0,0,0,0.04)' },
               }}
@@ -149,15 +149,15 @@ export default function Landing() {
 
             <Button
               variant="contained"
-              startIcon={<PersonIcon sx={{ fontSize: '0.9rem !important' }} />}
+              startIcon={<PersonIcon sx={{ fontSize: '1rem !important' }} />}
               onClick={() => navigate('/login')}
               sx={{
                 borderRadius: 5,
-                px: 2,
-                py: 0.6,
+                px: 2.5,
+                py: 0.7,
                 textTransform: 'none',
                 fontWeight: 700,
-                fontSize: '0.8rem',
+                fontSize: '0.9rem',
                 bgcolor: '#2563eb',
                 boxShadow: '0 2px 10px rgba(37, 99, 235, 0.28)',
                 '&:hover': { bgcolor: '#1d4ed8' },
@@ -166,7 +166,7 @@ export default function Landing() {
               Get Token
             </Button>
           </Stack>
-        </Container>
+        </Box>
       </Box>
 
       {/* ─── Hero Section ─────────────────────────────────────────────────── */}
@@ -234,7 +234,7 @@ export default function Landing() {
         />
 
         {/* Focused Container */}
-        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, px: { xs: 2.5, sm: 3, md: 4 } }}>
+        <Box sx={{ position: 'relative', zIndex: 2, px: { xs: 2.5, sm: 4, md: 6, lg: 8 } }}>
           <Grid container spacing={{ xs: 3, md: 5 }} sx={{ alignItems: 'center' }}>
             {/* Left Column: Headline & Value Proposition */}
             <Grid size={{ xs: 12, md: 6.5 }}>
@@ -245,7 +245,7 @@ export default function Landing() {
                 <Typography
                   variant="h1"
                   sx={{
-                    fontSize: { xs: '2rem', sm: '2.5rem', md: '2.8rem' },
+                    fontSize: { xs: '2.4rem', sm: '3rem', md: '3.5rem' },
                     fontWeight: 900,
                     lineHeight: 1.12,
                     letterSpacing: '-0.025em',
@@ -269,7 +269,7 @@ export default function Landing() {
                 <Typography
                   variant="h4"
                   sx={{
-                    fontSize: { xs: '1rem', sm: '1.15rem', md: '1.2rem' },
+                    fontSize: { xs: '1.1rem', sm: '1.3rem', md: '1.4rem' },
                     fontWeight: 700,
                     lineHeight: 1.4,
                     mb: 1.8,
@@ -283,10 +283,10 @@ export default function Landing() {
                 <Typography
                   variant="body1"
                   sx={{
-                    fontSize: { xs: '0.875rem', md: '0.92rem' },
+                    fontSize: { xs: '0.95rem', md: '1.05rem' },
                     lineHeight: 1.6,
                     mb: 3,
-                    maxWidth: 460,
+                    maxWidth: 520,
                     color: '#475569',
                     fontWeight: 450,
                   }}
@@ -302,9 +302,9 @@ export default function Landing() {
                     onClick={() => navigate('/login')}
                     endIcon={<ArrowForwardIcon sx={{ fontSize: '0.9rem !important' }} />}
                     sx={{
-                      px: 3.2,
-                      py: 1.2,
-                      fontSize: '0.875rem',
+                      px: 3.8,
+                      py: 1.4,
+                      fontSize: '1rem',
                       fontWeight: 800,
                       borderRadius: 5,
                       bgcolor: '#0f172a',
@@ -322,9 +322,9 @@ export default function Landing() {
                     size="medium"
                     onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
                     sx={{
-                      px: 2.8,
-                      py: 1.2,
-                      fontSize: '0.875rem',
+                      px: 3.2,
+                      py: 1.4,
+                      fontSize: '1rem',
                       fontWeight: 700,
                       borderRadius: 5,
                       color: '#334155',
@@ -349,7 +349,7 @@ export default function Landing() {
                 elevation={0}
                 className="slide-up"
                 sx={{
-                  maxWidth: { xs: '100%', sm: 440, md: 460 },
+                  maxWidth: { xs: '100%', sm: 480, md: 520 },
                   width: '100%',
                   mx: 'auto',
                   ml: { md: 'auto' },
@@ -367,7 +367,7 @@ export default function Landing() {
                 <Box
                   sx={{
                     px: 3.5,
-                    py: 1.4,
+                    py: 1.8,
                     bgcolor: '#0f172a',
                     color: 'white',
                     display: 'flex',
@@ -376,8 +376,8 @@ export default function Landing() {
                   }}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CalculateIcon sx={{ color: '#60a5fa', fontSize: '1rem' }} />
-                    <Typography variant="subtitle2" fontWeight={800} sx={{ letterSpacing: 0.5, fontSize: '0.75rem', color: '#ffffff' }}>
+                    <CalculateIcon sx={{ color: '#60a5fa', fontSize: '1.2rem' }} />
+                    <Typography variant="subtitle2" fontWeight={800} sx={{ letterSpacing: 0.5, fontSize: '0.85rem', color: '#ffffff' }}>
                       WAIT ESTIMATOR
                     </Typography>
                   </Box>
@@ -385,9 +385,9 @@ export default function Landing() {
 
                 </Box>
 
-                <Box sx={{ p: 1.8 }}>
+                <Box sx={{ p: 2.2 }}>
                   {/* Step 1: Select Service */}
-                  <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.5, mb: 0.8, display: 'block', fontSize: '0.64rem' }}>
+                  <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.5, mb: 0.8, display: 'block', fontSize: '0.74rem' }}>
                     1. Select Your Service
                   </Typography>
 
@@ -400,8 +400,8 @@ export default function Landing() {
                             elevation={0}
                             onClick={() => setSelectedServiceId(serv.id)}
                             sx={{
-                              p: 1.2,
-                              px: 1.6,
+                              p: 1.5,
+                              px: 1.8,
                               borderRadius: '10px !important',
                               border: isSelected ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
                               bgcolor: isSelected ? '#eff6ff' : '#ffffff',
@@ -418,10 +418,10 @@ export default function Landing() {
                                 {serv.icon}
                               </Box>
                               <Box>
-                                <Typography variant="subtitle2" fontWeight={700} color={isSelected ? '#1e40af' : '#334155'} sx={{ fontSize: '0.74rem', lineHeight: 1.25 }}>
+                                <Typography variant="subtitle2" fontWeight={700} color={isSelected ? '#1e40af' : '#334155'} sx={{ fontSize: '0.84rem', lineHeight: 1.25 }}>
                                   {serv.name}
                                 </Typography>
-                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.64rem', display: 'block', mt: 0.3, fontWeight: 500 }}>
+                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.72rem', display: 'block', mt: 0.3, fontWeight: 500 }}>
                                   ~{serv.avgMin} min avg
                                 </Typography>
                               </Box>
@@ -433,14 +433,14 @@ export default function Landing() {
                   </Grid>
 
                   {/* Step 2: Queue Breakdown */}
-                  <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.5, mb: 0.8, display: 'block', fontSize: '0.64rem' }}>
+                  <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 0.5, mb: 0.8, display: 'block', fontSize: '0.74rem' }}>
                     2. Queue Ahead ({peopleAheadCount} People)
                   </Typography>
 
                   <Stack spacing={0.6} sx={{ mb: 1.5 }}>
                     {waitingEntriesFromDB.length === 0 ? (
                       <Box sx={{ p: 1.2, textAlign: 'center', bgcolor: '#f8fafc', borderRadius: 2, border: '1px dashed #cbd5e1' }}>
-                        <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ fontSize: '0.75rem' }}>
+                        <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ fontSize: '0.85rem' }}>
                           No queue currently — instant counter service!
                         </Typography>
                       </Box>
@@ -463,7 +463,7 @@ export default function Landing() {
                             <Typography variant="caption" fontWeight={800} color="#94a3b8" sx={{ fontSize: '0.65rem' }}>
                               {item.step}
                             </Typography>
-                            <Typography variant="body2" fontWeight={600} color="#334155" sx={{ fontSize: '0.74rem' }}>
+                            <Typography variant="body2" fontWeight={600} color="#334155" sx={{ fontSize: '0.84rem' }}>
                               #{item.tokenNumber} · {item.serviceName}
                             </Typography>
                           </Box>
@@ -492,10 +492,10 @@ export default function Landing() {
                     }}
                   >
                     <Box>
-                      <Typography variant="caption" color="#166534" fontWeight={700} display="block" sx={{ textTransform: 'uppercase', fontSize: '0.6rem', letterSpacing: 0.4 }}>
+                      <Typography variant="caption" color="#166534" fontWeight={700} display="block" sx={{ textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: 0.4 }}>
                         Calculated Wait Time
                       </Typography>
-                      <Typography variant="h6" fontWeight={800} color="#14532d" sx={{ fontSize: '1.1rem', mt: 0.1 }}>
+                      <Typography variant="h6" fontWeight={800} color="#14532d" sx={{ fontSize: '1.3rem', mt: 0.1 }}>
                         ~{totalCalculatedWait} min
                       </Typography>
                     </Box>
@@ -511,7 +511,7 @@ export default function Landing() {
                         borderRadius: 5,
                         px: 1.6,
                         py: 0.6,
-                        fontSize: '0.74rem',
+                        fontSize: '0.84rem',
                         textTransform: 'none',
                         boxShadow: '0 2px 6px rgba(22, 163, 74, 0.25)',
                         '&:hover': { bgcolor: '#15803d' },
@@ -547,7 +547,7 @@ export default function Landing() {
               </Paper>
             </Grid>
           </Grid>
-        </Container>
+        </Box>
       </Box>
 
       {/* ─── How It Works Section ────────────────────────────────────────── */}
@@ -560,37 +560,37 @@ export default function Landing() {
           position: 'relative',
         }}
       >
-        <Container maxWidth="lg" sx={{ px: { xs: 2.5, sm: 3, md: 4 } }}>
+        <Box sx={{ px: { xs: 2.5, sm: 4, md: 6, lg: 8 } }}>
           <Box sx={{ textAlign: 'center', mb: 5 }}>
             <Typography
               variant="overline"
-              sx={{ color: '#2563eb', fontWeight: 800, fontSize: '0.72rem', letterSpacing: 2, mb: 0.5, display: 'block' }}
+              sx={{ color: '#2563eb', fontWeight: 800, fontSize: '0.82rem', letterSpacing: 2, mb: 0.5, display: 'block' }}
             >
               SIMPLE PROCESS
             </Typography>
-            <Typography variant="h3" sx={{ fontWeight: 800, color: '#0f172a', fontSize: { xs: '1.4rem', md: '1.85rem' }, letterSpacing: '-0.02em' }}>
+            <Typography variant="h3" sx={{ fontWeight: 800, color: '#0f172a', fontSize: { xs: '1.6rem', md: '2.1rem' }, letterSpacing: '-0.02em' }}>
               Four simple steps to your turn
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.8, maxWidth: 420, mx: 'auto', fontSize: '0.88rem' }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.8, maxWidth: 500, mx: 'auto', fontSize: '1rem' }}>
               From line request to counter — track everything on your phone.
             </Typography>
           </Box>
 
           <Grid container spacing={2.5}>
             {[
-              { step: '01', title: 'Select Service', desc: 'Choose your desk service request type', icon: <TouchAppIcon sx={{ fontSize: 20 }} /> },
-              { step: '02', title: 'Get Token', desc: 'Instant digital token with live position', icon: <ConfirmationNumberIcon sx={{ fontSize: 20 }} /> },
-              { step: '03', title: 'Track Wait', desc: 'Real-time minutes countdown updates', icon: <InsightsIcon sx={{ fontSize: 20 }} /> },
-              { step: '04', title: 'Walk Up', desc: 'Head to counter when your number is called', icon: <CheckCircleIcon sx={{ fontSize: 20 }} /> },
+              { step: '01', title: 'Select Service', desc: 'Choose your desk service request type', icon: <TouchAppIcon sx={{ fontSize: 24 }} /> },
+              { step: '02', title: 'Get Token', desc: 'Instant digital token with live position', icon: <ConfirmationNumberIcon sx={{ fontSize: 24 }} /> },
+              { step: '03', title: 'Track Wait', desc: 'Real-time minutes countdown updates', icon: <InsightsIcon sx={{ fontSize: 24 }} /> },
+              { step: '04', title: 'Walk Up', desc: 'Head to counter when your number is called', icon: <CheckCircleIcon sx={{ fontSize: 24 }} /> },
             ].map((item) => (
               <Grid size={{ xs: 12, sm: 6, md: 3 }} key={item.step}>
                 <Paper
                   elevation={0}
                   sx={{
-                    p: 2.5,
+                    p: 3,
                     height: '100%',
                     border: '1px solid #e2e8f0',
-                    borderRadius: '12px !important',
+                    borderRadius: '14px !important',
                     bgcolor: '#ffffff',
                     transition: 'all 0.2s ease',
                     boxShadow: '0 2px 10px rgba(15, 23, 42, 0.03)',
@@ -608,8 +608,8 @@ export default function Landing() {
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                       <Box
                         sx={{
-                          width: 38,
-                          height: 38,
+                          width: 44,
+                          height: 44,
                           borderRadius: '8px',
                           bgcolor: 'rgba(37, 99, 235, 0.08)',
                           display: 'flex',
@@ -627,16 +627,16 @@ export default function Landing() {
                           bgcolor: '#eff6ff',
                           color: '#2563eb',
                           fontWeight: 800,
-                          fontSize: '0.68rem',
-                          height: 22,
+                          fontSize: '0.76rem',
+                          height: 24,
                           borderRadius: '6px',
                         }}
                       />
                     </Box>
-                    <Typography variant="subtitle1" fontWeight={800} color="#0f172a" sx={{ fontSize: '0.92rem', mb: 0.6, lineHeight: 1.3 }}>
+                    <Typography variant="subtitle1" fontWeight={800} color="#0f172a" sx={{ fontSize: '1.05rem', mb: 0.6, lineHeight: 1.3 }}>
                       {item.title}
                     </Typography>
-                    <Typography variant="body2" color="#64748b" sx={{ fontSize: '0.8rem', lineHeight: 1.5 }}>
+                    <Typography variant="body2" color="#64748b" sx={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
                       {item.desc}
                     </Typography>
                   </Box>
@@ -644,7 +644,7 @@ export default function Landing() {
               </Grid>
             ))}
           </Grid>
-        </Container>
+        </Box>
       </Box>
 
       {/* ─── Capabilities Section ─────────────────────────────────────────── */}
@@ -655,36 +655,36 @@ export default function Landing() {
           borderTop: '1px solid #e2e8f0',
         }}
       >
-        <Container maxWidth="lg" sx={{ px: { xs: 2.5, sm: 3, md: 4 } }}>
+        <Box sx={{ px: { xs: 2.5, sm: 4, md: 6, lg: 8 } }}>
           <Box sx={{ textAlign: 'center', mb: 5 }}>
             <Typography
               variant="overline"
-              sx={{ color: '#2563eb', fontWeight: 800, fontSize: '0.72rem', letterSpacing: 2, mb: 0.5, display: 'block' }}
+              sx={{ color: '#2563eb', fontWeight: 800, fontSize: '0.82rem', letterSpacing: 2, mb: 0.5, display: 'block' }}
             >
               SMART FEATURES
             </Typography>
-            <Typography variant="h3" sx={{ fontWeight: 800, color: '#0f172a', fontSize: { xs: '1.4rem', md: '1.85rem' }, letterSpacing: '-0.02em' }}>
+            <Typography variant="h3" sx={{ fontWeight: 800, color: '#0f172a', fontSize: { xs: '1.6rem', md: '2.1rem' }, letterSpacing: '-0.02em' }}>
               Built for stress-free campus visits
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.8, maxWidth: 420, mx: 'auto', fontSize: '0.88rem' }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.8, maxWidth: 500, mx: 'auto', fontSize: '1rem' }}>
               Transparent real-time time estimates instead of unpredictable waiting rooms.
             </Typography>
           </Box>
 
           <Grid container spacing={2.5}>
             {[
-              { icon: <AccessTimeIcon sx={{ fontSize: 20 }} />, title: 'Personalized Estimates', desc: 'Calculated using actual services ahead — not head count.' },
-              { icon: <ElectricBoltIcon sx={{ fontSize: 20 }} />, title: 'Live Queue Updates', desc: 'Position and time refresh live as staff process tokens.' },
-              { icon: <ScheduleIcon sx={{ fontSize: 20 }} />, title: 'Counter Closing Alerts', desc: 'Know if you will be served before office hours end.' },
-              { icon: <TrendingUpIcon sx={{ fontSize: 20 }} />, title: 'Adaptive Accuracy', desc: 'Average times calibrate continuously to staff speed.' },
+              { icon: <AccessTimeIcon sx={{ fontSize: 24 }} />, title: 'Personalized Estimates', desc: 'Calculated using actual services ahead — not head count.' },
+              { icon: <ElectricBoltIcon sx={{ fontSize: 24 }} />, title: 'Live Queue Updates', desc: 'Position and time refresh live as staff process tokens.' },
+              { icon: <ScheduleIcon sx={{ fontSize: 24 }} />, title: 'Counter Closing Alerts', desc: 'Know if you will be served before office hours end.' },
+              { icon: <TrendingUpIcon sx={{ fontSize: 24 }} />, title: 'Adaptive Accuracy', desc: 'Average times calibrate continuously to staff speed.' },
             ].map((f, i) => (
               <Grid size={{ xs: 12, sm: 6, md: 3 }} key={i}>
                 <Paper
                   elevation={0}
                   sx={{
-                    p: 2.5,
+                    p: 3,
                     height: '100%',
-                    borderRadius: '12px !important',
+                    borderRadius: '14px !important',
                     border: '1px solid #e2e8f0',
                     bgcolor: '#ffffff',
                     display: 'flex',
@@ -701,8 +701,8 @@ export default function Landing() {
                 >
                   <Box
                     sx={{
-                      width: 38,
-                      height: 38,
+                      width: 44,
+                      height: 44,
                       borderRadius: '8px',
                       bgcolor: 'rgba(37, 99, 235, 0.08)',
                       display: 'flex',
@@ -714,17 +714,17 @@ export default function Landing() {
                   >
                     {f.icon}
                   </Box>
-                  <Typography variant="subtitle1" fontWeight={800} color="#0f172a" sx={{ fontSize: '0.92rem', mb: 0.6, lineHeight: 1.3 }}>
+                  <Typography variant="subtitle1" fontWeight={800} color="#0f172a" sx={{ fontSize: '1.05rem', mb: 0.6, lineHeight: 1.3 }}>
                     {f.title}
                   </Typography>
-                  <Typography variant="body2" color="#64748b" sx={{ fontSize: '0.8rem', lineHeight: 1.5 }}>
+                  <Typography variant="body2" color="#64748b" sx={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
                     {f.desc}
                   </Typography>
                 </Paper>
               </Grid>
             ))}
           </Grid>
-        </Container>
+        </Box>
       </Box>
 
       {/* ─── Call To Action Section ───────────────────────────────────────── */}
@@ -753,7 +753,7 @@ export default function Landing() {
           }}
         />
 
-        <Container maxWidth="sm" sx={{ position: 'relative', zIndex: 2, px: { xs: 2.5, sm: 3 } }}>
+        <Box sx={{ position: 'relative', zIndex: 2, px: { xs: 2.5, sm: 4, md: 6, lg: 8 }, maxWidth: 640, mx: 'auto' }}>
           <Typography variant="h3" sx={{ fontWeight: 800, mb: 1.2, fontSize: { xs: '1.4rem', md: '1.8rem' }, letterSpacing: '-0.02em', color: '#ffffff' }}>
             Ready to skip the line?
           </Typography>
@@ -779,7 +779,7 @@ export default function Landing() {
           >
             Get Your Token
           </Button>
-        </Container>
+        </Box>
       </Box>
 
       {/* ─── Footer ──────────────────────────────────────────────────────── */}
