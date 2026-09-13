@@ -245,7 +245,7 @@ export default function Landing() {
         <Box sx={{ position: 'relative', zIndex: 2, px: { xs: 2.5, sm: 4, md: 6, lg: 8 } }}>
           <Grid container spacing={{ xs: 3, md: 5 }} sx={{ alignItems: 'center' }}>
             {/* Left Column: Headline & Value Proposition */}
-            <Grid size={{ xs: 12, md: 6.5 }}>
+            <Grid size={{ xs: 12, md: 5.5 }}>
               <Box className="fade-in">
 
 
@@ -352,12 +352,12 @@ export default function Landing() {
             </Grid>
 
             {/* Right Column: Sleek Glassmorphic Wait Estimator Card */}
-            <Grid size={{ xs: 12, md: 5.5 }}>
+            <Grid size={{ xs: 12, md: 6.5 }}>
               <Paper
                 elevation={0}
                 className="slide-up"
                 sx={{
-                  maxWidth: { xs: '100%', sm: 480, md: 520 },
+                  maxWidth: { xs: '100%', sm: 540, md: 640 },
                   width: '100%',
                   mx: 'auto',
                   ml: { md: 'auto' },
