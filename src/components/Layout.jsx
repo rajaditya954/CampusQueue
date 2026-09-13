@@ -22,7 +22,6 @@ const DRAWER_WIDTH = 260;
 const studentNav = [
   { label: 'Campus Services', icon: <SchoolIcon />, path: '/student' },
   { label: 'Queue History', icon: <HistoryIcon />, path: '/student/history' },
-  { label: 'Interactive Simulator', icon: <ScienceIcon />, path: '/demo' },
 ];
 
 const adminNav = [

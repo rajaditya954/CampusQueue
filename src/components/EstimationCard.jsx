@@ -56,11 +56,12 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
     <Paper
       elevation={0}
       sx={{
-        p: 3,
-        borderRadius: 3,
+        p: { xs: 3, sm: 4 },
+        borderRadius: 4,
         border: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
+        boxShadow: '0 4px 20px rgba(15, 23, 42, 0.04)',
       }}
     >
       {/* Header bar with Live indicator and Refresh Button */}
@@ -69,29 +70,29 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
           display: 'flex',
           justify: 'space-between',
           alignItems: 'center',
-          mb: 2.5,
-          pb: 1.5,
+          mb: 3,
+          pb: 2,
           borderBottom: '1px solid',
           borderColor: 'divider',
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
           <Box
             sx={{
-              width: 8,
-              height: 8,
+              width: 10,
+              height: 10,
               borderRadius: '50%',
               bgcolor: 'success.main',
-              boxShadow: '0 0 8px rgba(76, 175, 80, 0.8)',
+              boxShadow: '0 0 10px rgba(76, 175, 80, 0.9)',
             }}
           />
-          <Typography variant="subtitle2" fontWeight={700} color="text.primary">
+          <Typography variant="h6" fontWeight={800} color="text.primary" sx={{ fontSize: '1.2rem' }}>
             Real-Time Estimates
           </Typography>
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem', fontWeight: 500 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.82rem', fontWeight: 600 }}>
             Updated {formattedLastUpdated}
           </Typography>
           <Tooltip title="Refresh Current Time & Estimates">
@@ -100,7 +101,7 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
               onClick={handleManualRefresh}
               color="primary"
               sx={{
-                p: 0.5,
+                p: 0.75,
                 bgcolor: 'action.hover',
                 '&:hover': { bgcolor: 'action.selected' },
               }}
@@ -118,17 +119,17 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
       </Box>
 
       {/* Main Metrics */}
-      <Stack spacing={2.5}>
+      <Stack spacing={3}>
         {/* People Ahead */}
         <MetricRow
-          icon={<PeopleIcon color="action" />}
+          icon={<PeopleIcon color="action" sx={{ fontSize: '1.8rem' }} />}
           label="Current queue"
           value={`${peopleAhead} ${peopleAhead === 1 ? 'person' : 'people'}`}
         />
 
         {/* Estimated Wait */}
         <MetricRow
-          icon={<AccessTimeIcon color="action" />}
+          icon={<AccessTimeIcon color="action" sx={{ fontSize: '1.8rem' }} />}
           label="Estimated waiting time"
           value={formatDuration(estimatedWaitMinutes)}
           highlight
@@ -138,7 +139,7 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
           <>
             {/* Service Time */}
             <MetricRow
-              icon={<BuildIcon color="action" />}
+              icon={<BuildIcon color="action" sx={{ fontSize: '1.8rem' }} />}
               label="Your estimated service time"
               value={formatDuration(estimatedServiceMinutes)}
             />
@@ -147,7 +148,7 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
 
             {/* Estimated Counter Approach Time */}
             <MetricRow
-              icon={<DirectionsWalkIcon color="primary" />}
+              icon={<DirectionsWalkIcon color="primary" sx={{ fontSize: '2.2rem' }} />}
               label="Estimated counter approach time"
               value={formatTime(dynamicServiceStart)}
               highlight
@@ -156,7 +157,7 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
 
             {/* Completion Time */}
             <MetricRow
-              icon={<EventIcon color="action" />}
+              icon={<EventIcon color="action" sx={{ fontSize: '1.8rem' }} />}
               label="Estimated completion"
               value={formatTime(dynamicCompletion)}
             />
@@ -164,7 +165,7 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
             {/* Counter Closing */}
             {closingTime && (
               <MetricRow
-                icon={<EventIcon color="action" />}
+                icon={<EventIcon color="action" sx={{ fontSize: '1.8rem' }} />}
                 label="Counter closes"
                 value={formatTime(closingTime)}
               />
@@ -190,20 +191,21 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
 
 function MetricRow({ icon, label, value, highlight = false, large = false }) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
       <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
         {icon}
       </Box>
       <Box sx={{ flex: 1 }}>
-        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem', mb: 0.25 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.9rem', fontWeight: 600, mb: 0.25 }}>
           {label}
         </Typography>
         <Typography
-          variant={large ? 'h4' : 'h6'}
+          variant={large ? 'h4' : 'h5'}
           sx={{
-            fontWeight: highlight ? 700 : 600,
+            fontWeight: highlight ? 800 : 700,
             color: highlight ? 'primary.main' : 'text.primary',
-            fontSize: large ? '1.5rem' : '1.1rem',
+            fontSize: large ? '2rem' : '1.35rem',
+            lineHeight: 1.2,
           }}
         >
           {value}
