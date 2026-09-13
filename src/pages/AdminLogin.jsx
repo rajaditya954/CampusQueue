@@ -65,12 +65,6 @@ export function AdminLogin() {
     setPassword(DEMO_ADMIN_PASSWORD);
   };
 
-  const handleQuickDemoAccess = () => {
-    handleFillDemoCredentials();
-    pendingLoginRef.current = true;
-    demoStaffSignIn('admin');
-    // Navigation is handled by the useEffect above once staffUser is set
-  };
 
   return (
     <Box
@@ -323,26 +317,6 @@ export function AdminLogin() {
                   }}
                 >
                   Fill Form
-                </Button>
-
-                <Button
-                  fullWidth
-                  size="small"
-                  variant="contained"
-                  startIcon={<VpnKeyIcon sx={{ fontSize: '0.8rem !important' }} />}
-                  onClick={handleQuickDemoAccess}
-                  sx={{
-                    borderRadius: 1.8,
-                    py: 0.5,
-                    textTransform: 'none',
-                    fontWeight: 800,
-                    fontSize: '0.74rem',
-                    bgcolor: '#0f172a',
-                    boxShadow: '0 2px 6px rgba(15, 23, 42, 0.15)',
-                    '&:hover': { bgcolor: '#1e293b' },
-                  }}
-                >
-                  Instant Login
                 </Button>
               </Stack>
             </CardContent>
