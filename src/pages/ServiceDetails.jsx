@@ -113,6 +113,16 @@ export function ServiceDetails() {
       return;
     }
 
+    if (isCounterClosed) {
+      setJoinError('Counter is currently closed. Cannot join queue.');
+      return;
+    }
+
+    if (estimationData?.feasibility === 'TOO_LATE') {
+      setJoinError('Operating hours have ended for today. Token generation is closed.');
+      return;
+    }
+
     try {
       const finalName = nameInput.trim() || studentName || 'Student';
       const sId = studentId || 'N/A';
@@ -299,7 +309,7 @@ export function ServiceDetails() {
                   variant="contained"
                   size="large"
                   startIcon={<ConfirmationNumberIcon />}
-                  disabled={supportedCounters.length === 0 || isCounterClosed || (estimationData?.feasibility === 'TOO_LATE' && !isCounterExplicitlyOpen)}
+                  disabled={supportedCounters.length === 0 || isCounterClosed || estimationData?.feasibility === 'TOO_LATE'}
                   onClick={handleJoinQueue}
                   sx={{
                     py: 1.5,
@@ -307,21 +317,20 @@ export function ServiceDetails() {
                     fontWeight: 700,
                     fontSize: '1rem',
                     textTransform: 'none',
-                    background: isCounterClosed
+                    background: (isCounterClosed || estimationData?.feasibility === 'TOO_LATE')
                       ? '#94a3b8'
                       : 'linear-gradient(135deg, #1a73e8 0%, #1565c0 100%)',
-                    boxShadow: isCounterClosed ? 'none' : '0 4px 14px rgba(26, 115, 232, 0.3)',
+                    boxShadow: (isCounterClosed || estimationData?.feasibility === 'TOO_LATE') ? 'none' : '0 4px 14px rgba(26, 115, 232, 0.3)',
                   }}
                 >
                   {supportedCounters.length === 0
                     ? 'No Counter Available'
                     : isCounterClosed
                     ? 'Counter Closed - Cannot Join'
-                    : (estimationData?.feasibility === 'TOO_LATE' && !isCounterExplicitlyOpen)
-                    ? 'Counter Closing - Cannot Join'
+                    : estimationData?.feasibility === 'TOO_LATE'
+                    ? 'Operating Hours Ended - Cannot Join'
                     : 'Get Digital Token Now'}
                 </Button>
-
               </Paper>
             )}
           </Stack>
