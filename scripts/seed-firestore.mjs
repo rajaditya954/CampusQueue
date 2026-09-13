@@ -14,15 +14,31 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, setDoc, getDoc, Timestamp } from 'firebase/firestore';
 
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+
+// Optional simple env loader if not running with --env-file
+try {
+  const envData = readFileSync(resolve(process.cwd(), '.env'), 'utf-8');
+  envData.split('\n').forEach(line => {
+    const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+    if (match) {
+      process.env[match[1]] = match[2].replace(/(^['"]|['"]$)/g, '').trim();
+    }
+  });
+} catch (e) {
+  // Ignore if .env doesn't exist
+}
+
 // ─── Firebase Config (from .env) ─────────────────────────────────────
 const firebaseConfig = {
-  apiKey: 'AIzaSyApbhbmAY7Iz_ad7I1hY9xBgDlgKRCFuNY',
-  authDomain: 'gdsc-7721e.firebaseapp.com',
-  projectId: 'gdsc-7721e',
-  storageBucket: 'gdsc-7721e.firebasestorage.app',
-  messagingSenderId: '1058654325183',
-  appId: '1:1058654325183:web:301cf17cbaf5f9f770f90a',
-  measurementId: 'G-88R8812BC5',
+  apiKey: process.env.VITE_FIREBASE_API_KEY,
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.VITE_FIREBASE_APP_ID,
+  measurementId: process.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
