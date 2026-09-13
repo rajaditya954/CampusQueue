@@ -320,8 +320,34 @@ export function AdminDashboard() {
             {/* Main Action Panel: Serving / Called / Next */}
             <Grid size={{ xs: 12, lg: 8 }}>
               <Stack spacing={3}>
+                {activeCounter.status === 'CLOSED' && (
+                  <Alert
+                    severity="error"
+                    sx={{ borderRadius: 3.5, p: 2, alignItems: 'center' }}
+                    action={
+                      <Button
+                        variant="contained"
+                        color="success"
+                        size="small"
+                        onClick={() => setCounterStatus(activeCounter.id, 'OPEN')}
+                        sx={{ fontWeight: 800, textTransform: 'none', borderRadius: 2, px: 2, py: 0.8 }}
+                      >
+                        Re-Open Counter Now
+                      </Button>
+                    }
+                  >
+                    <Typography variant="subtitle2" fontWeight={800} sx={{ fontSize: '0.95rem' }}>
+                      Counter is currently CLOSED
+                    </Typography>
+                    <Typography variant="body2" sx={{ fontSize: '0.82rem', mt: 0.2 }}>
+                      Students cannot request tokens while closed. Staff can re-open this counter for service anytime.
+                    </Typography>
+                  </Alert>
+                )}
+
                 {/* Currently Serving Card */}
                 <Paper
+
                   elevation={0}
                   sx={{
                     p: { xs: 2.5, sm: 3.5 },

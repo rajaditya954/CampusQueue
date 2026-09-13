@@ -164,12 +164,36 @@ export function AdminCounters() {
                   <CounterStatusBadge status={ctr.status} />
                 </TableCell>
                 <TableCell align="right">
-                  <IconButton size="small" color="primary" onClick={() => handleOpenEdit(ctr)}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
+                  <Stack direction="row" spacing={1} justifyContent="flex-end" alignItems="center">
+                    {ctr.status === 'CLOSED' || ctr.status === 'PAUSED' ? (
+                      <Button
+                        size="small"
+                        variant="contained"
+                        color="success"
+                        onClick={() => setCounterStatus(ctr.id, 'OPEN')}
+                        sx={{ textTransform: 'none', fontWeight: 800, fontSize: '0.75rem', borderRadius: 2, px: 1.5, py: 0.4 }}
+                      >
+                        Open Counter
+                      </Button>
+                    ) : (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        color="error"
+                        onClick={() => setCounterStatus(ctr.id, 'CLOSED')}
+                        sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.75rem', borderRadius: 2, px: 1.5, py: 0.4 }}
+                      >
+                        Close Counter
+                      </Button>
+                    )}
+                    <IconButton size="small" color="primary" onClick={() => handleOpenEdit(ctr)}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
                 </TableCell>
               </TableRow>
             ))}
+
           </TableBody>
         </Table>
       </TableContainer>
