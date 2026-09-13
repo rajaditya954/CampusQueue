@@ -78,9 +78,10 @@ export function DemoProvider({ children }) {
 
   const setCounterStatus = useCallback((counterId, status) => {
     setCounters(prev => prev.map(c =>
-      c.id === counterId ? { ...c, status } : c
+      (counterId === 'ALL' || c.id === counterId) ? { ...c, status } : c
     ));
   }, []);
+
 
   // ─── Queue Operations ────────────────────────────────────────────
 

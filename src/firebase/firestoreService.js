@@ -406,11 +406,37 @@ export async function firestoreUpdateCounter(counterId, updates) {
 
 /**
  * Set counter operational status (OPEN / PAUSED / CLOSED).
+ * Supports both individual counter ID and global 'ALL' counter status updates.
  */
 export async function firestoreSetCounterStatus(counterId, status) {
   const currentUser = auth.currentUser;
   if (!currentUser) {
     throw new Error('Unauthenticated: You must be logged in as staff/admin to change counter status.');
+  }
+
+  // Handle global 'ALL' counter selection
+  if (counterId === 'ALL') {
+    try {
+      const countersSnap = await getDocs(collection(db, COLLECTIONS.COUNTERS));
+      if (countersSnap.empty) return;
+
+      const batch = writeBatch(db);
+      countersSnap.docs.forEach(counterDocSnap => {
+        batch.update(counterDocSnap.ref, {
+          status,
+          updatedAt: serverTimestamp(),
+          updatedBy: currentUser.uid,
+        });
+      });
+      await batch.commit();
+      return;
+    } catch (err) {
+      console.error('firestoreSetCounterStatus global batch update error:', err);
+      if (err.code === 'permission-denied' || err.message?.includes('permissions')) {
+        throw new Error("You don't have permission to change counter status.");
+      }
+      throw err;
+    }
   }
 
   const counterRef = doc(db, COLLECTIONS.COUNTERS, counterId);
@@ -428,6 +454,7 @@ export async function firestoreSetCounterStatus(counterId, status) {
     throw err;
   }
 }
+
 
 
 // ─── Student Operations ─────────────────────────────────────────────
