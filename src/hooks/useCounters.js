@@ -101,12 +101,14 @@ export function useCounters() {
     counters: firebaseCounters,
     loading,
     error,
+    clearError: () => setError(null),
     addCounter,
     updateCounter,
     setCounterStatus,
     getCountersForService,
     getActiveCountersForService,
   };
+
 }
 
 export default useCounters;

@@ -191,6 +191,7 @@ export function useQueue() {
     queueEntries: firebaseQueue,
     loading,
     error,
+    clearError: () => setError(null),
     joinQueue,
     callNext,
     startService,
@@ -208,5 +209,6 @@ export function useQueue() {
     getCalledEntry,
   };
 }
+
 
 export default useQueue;

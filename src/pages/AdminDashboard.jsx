@@ -40,8 +40,8 @@ import { seedFirestore, clearDemoData, clearAllQueueEntries } from '../utils/fir
 
 export function AdminDashboard() {
   const { user } = useAuth();
-  const { counters, setCounterStatus, error: countersError } = useCounters();
-  const { servicesMap, error: servicesError } = useServices();
+  const { counters, setCounterStatus, error: countersError, clearError: clearCountersError } = useCounters();
+  const { servicesMap, error: servicesError, clearError: clearServicesError } = useServices();
   const {
     queueEntries,
     callNext,
@@ -53,11 +53,19 @@ export function AdminDashboard() {
     getCalledEntry,
     getActiveQueueForCounter,
     error: queueError,
+    clearError: clearQueueError,
   } = useQueue();
 
   const firestoreError = servicesError || countersError || queueError;
 
+  const handleDismissError = () => {
+    clearCountersError?.();
+    clearServicesError?.();
+    clearQueueError?.();
+  };
+
   const [selectedCounterId, setSelectedCounterId] = useState('ALL');
+
 
   useEffect(() => {
     if (!selectedCounterId && counters.length > 0) {
@@ -290,15 +298,16 @@ export function AdminDashboard() {
         </Paper>
 
         {firestoreError && (
-          <Alert severity="warning" sx={{ mb: 3, borderRadius: 3 }}>
+          <Alert severity="warning" onClose={handleDismissError} sx={{ mb: 3, borderRadius: 3 }}>
             <Typography variant="subtitle2" fontWeight={700}>
-              Firestore Permissions Warning
+              Firestore Notice
             </Typography>
             <Typography variant="body2" sx={{ mt: 0.5 }}>
-              {firestoreError}. Please update your <strong>Cloud Firestore Security Rules</strong> in the Firebase Console to allow client read/write access.
+              {firestoreError}
             </Typography>
           </Alert>
         )}
+
 
         {seedStatus && (
           <Alert severity={seedStatus.severity} onClose={() => setSeedStatus(null)} sx={{ mb: 3, borderRadius: 3 }}>
