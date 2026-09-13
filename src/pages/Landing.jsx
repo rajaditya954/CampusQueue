@@ -117,8 +117,8 @@ export default function Landing() {
               variant="outlined"
               size="small"
               onClick={() => navigate('/demo')}
-              startIcon={<AutoAwesomeIcon sx={{ fontSize: '0.85rem !important' }} />}
               sx={{
+                minWidth: { xs: 'auto', sm: 'auto' },
                 textTransform: 'none',
                 fontWeight: 700,
                 color: '#2563eb',
@@ -130,7 +130,8 @@ export default function Landing() {
                 '&:hover': { bgcolor: 'rgba(37, 99, 235, 0.12)', borderColor: '#2563eb' },
               }}
             >
-              Demo Mode
+              <AutoAwesomeIcon sx={{ fontSize: '1rem', mr: { xs: 0, sm: 0.5 } }} />
+              <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Demo</Box>
             </Button>
 
             <Button
@@ -138,6 +139,7 @@ export default function Landing() {
               size="small"
               onClick={() => navigate('/admin/login')}
               sx={{
+                minWidth: { xs: 'auto', sm: 'auto' },
                 textTransform: 'none',
                 fontWeight: 600,
                 color: '#64748b',
@@ -148,15 +150,15 @@ export default function Landing() {
                 '&:hover': { color: '#0f172a', bgcolor: 'rgba(0,0,0,0.04)' },
               }}
             >
-              Staff Login
+              Staff
             </Button>
 
             <Button
               variant="contained"
               size="small"
-              startIcon={<PersonIcon sx={{ fontSize: '0.9rem !important' }} />}
               onClick={() => navigate('/login')}
               sx={{
+                minWidth: { xs: 'auto', sm: 'auto' },
                 borderRadius: 5,
                 px: { xs: 1.2, sm: 2.5 },
                 py: 0.6,
@@ -168,7 +170,8 @@ export default function Landing() {
                 '&:hover': { bgcolor: '#1d4ed8' },
               }}
             >
-              Get Token
+              <PersonIcon sx={{ fontSize: '1rem', mr: { xs: 0, sm: 0.5 } }} />
+              <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Get Token</Box>
             </Button>
           </Stack>
         </Box>

@@ -113,13 +113,11 @@ export function ServiceDetails() {
       return;
     }
 
-    if (isCounterClosed) {
-      setJoinError('Counter is currently closed. Cannot join queue.');
+    if (currentCounter && currentCounter.status !== 'OPEN') {
+      setJoinError(`Counter is currently ${currentCounter.status.toLowerCase()}. Cannot generate token.`);
       return;
-    }
-
-    if (estimationData?.feasibility === 'TOO_LATE' && !isCounterExplicitlyOpen) {
-      setJoinError('Operating hours have ended for today. Counter is currently closed.');
+    } else if (!currentCounter && !isCounterExplicitlyOpen) {
+      setJoinError('No counter is currently open. Cannot generate token.');
       return;
     }
 
@@ -170,7 +168,7 @@ export function ServiceDetails() {
 
       <Grid container spacing={4}>
         {/* Left Column: Service Details */}
-        <Grid size={{ xs: 12, md: 7 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Paper elevation={0} sx={{ p: 4, borderRadius: 4, border: '1px solid', borderColor: 'divider' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
               <Avatar
@@ -254,7 +252,7 @@ export function ServiceDetails() {
         </Grid>
 
         {/* Right Column: Queue Estimator & Join Action */}
-        <Grid size={{ xs: 12, md: 5 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Stack spacing={3}>
             <Box>
               <Typography variant="h6" fontWeight={700} sx={{ mb: 1.5 }}>
