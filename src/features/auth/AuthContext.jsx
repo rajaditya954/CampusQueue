@@ -221,24 +221,45 @@ export function AuthProvider({ children }) {
 
   // Demo sign in for staff
   const demoStaffSignIn = useCallback(async (role = 'admin') => {
-    if (!isDemoMode && !auth.currentUser) {
+    let currentAuthUser = auth.currentUser;
+    if (!isDemoMode && !currentAuthUser) {
       try {
-        await signInAnonymously(auth);
+        const res = await signInAnonymously(auth);
+        currentAuthUser = res.user;
       } catch (e) {
         console.warn('Anonymous sign-in notice for demo staff:', e);
       }
     }
+
+    const assignedRole = role === 'admin' ? USER_ROLES.ADMIN : USER_ROLES.STAFF;
     const demoUser = {
-      uid: auth.currentUser?.uid || 'demo-staff-id',
+      uid: currentAuthUser?.uid || 'demo-staff-id',
       email: 'staff@campus.edu',
       displayName: role === 'admin' ? 'Admin Controller' : 'Counter Staff',
-      role: role === 'admin' ? USER_ROLES.ADMIN : USER_ROLES.STAFF,
+      role: assignedRole,
     };
+
+    // Sync staff role into Firestore users collection so security rules recognize authorized staff
+    if (!isDemoMode && currentAuthUser?.uid) {
+      try {
+        await setDoc(doc(db, 'users', currentAuthUser.uid), {
+          email: demoUser.email,
+          displayName: demoUser.displayName,
+          role: assignedRole,
+          isDemo: true,
+          updatedAt: serverTimestamp(),
+        }, { merge: true });
+      } catch (err) {
+        console.warn('Could not sync demo staff user profile to Firestore:', err);
+      }
+    }
+
     isDemoStaffRef.current = true;
     setStaffUser(demoUser);
     setUserRole(demoUser.role);
     setError(null);
   }, []);
+
 
   // Email/Password Sign-In (for staff/admin)
   const signInWithEmail = useCallback(async (email, password) => {
