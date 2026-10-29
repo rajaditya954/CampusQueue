@@ -67,6 +67,20 @@ describe('Queue Estimation Engine', () => {
       const result = calculateQueueFeasibility(completion, closing);
       expect(result).toBe(FEASIBILITY.TOO_LATE);
     });
+
+    it('returns CLOSED when counter status is CLOSED even if completion is before closing', () => {
+      const completion = new Date('2026-09-13T15:00:00Z');
+      const closing = new Date('2026-09-13T17:00:00Z');
+      const result = calculateQueueFeasibility(completion, closing, 'CLOSED');
+      expect(result).toBe(FEASIBILITY.CLOSED);
+    });
+
+    it('returns PAUSED when counter status is PAUSED', () => {
+      const completion = new Date('2026-09-13T15:00:00Z');
+      const closing = new Date('2026-09-13T17:00:00Z');
+      const result = calculateQueueFeasibility(completion, closing, 'PAUSED');
+      expect(result).toBe(FEASIBILITY.PAUSED);
+    });
   });
 
   describe('getConfidenceLevel', () => {

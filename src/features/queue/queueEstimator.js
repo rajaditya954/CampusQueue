@@ -85,9 +85,17 @@ export function calculateEstimatedServiceStart(currentTime, waitTimeMinutes) {
  * 
  * @param {Date} estimatedCompletion - When the student's service would finish
  * @param {Date} closingTime - When the counter closes
- * @returns {string} One of FEASIBILITY.SAFE, .TIGHT, .TOO_LATE
+ * @param {string} [counterStatus] - Optional status of the serving counter ('OPEN', 'CLOSED', 'PAUSED')
+ * @returns {string} One of FEASIBILITY.SAFE, .TIGHT, .TOO_LATE, .CLOSED, .PAUSED
  */
-export function calculateQueueFeasibility(estimatedCompletion, closingTime) {
+export function calculateQueueFeasibility(estimatedCompletion, closingTime, counterStatus = null) {
+  if (counterStatus === 'CLOSED') {
+    return FEASIBILITY.CLOSED;
+  }
+  if (counterStatus === 'PAUSED') {
+    return FEASIBILITY.PAUSED;
+  }
+
   if (!estimatedCompletion || !closingTime) return FEASIBILITY.SAFE;
 
   const completionMs = estimatedCompletion.getTime();
@@ -186,6 +194,7 @@ export function calculateFullEstimation({
   closingTime,
   activeCounterCount = 1,
   studentEntryId = null,
+  counterStatus = null,
 }) {
   const now = new Date();
   const service = servicesMap[serviceId];
@@ -197,7 +206,7 @@ export function calculateFullEstimation({
       estimatedServiceMinutes: 10,
       estimatedServiceStart: now,
       estimatedCompletion: now,
-      feasibility: FEASIBILITY.SAFE,
+      feasibility: counterStatus === 'CLOSED' ? FEASIBILITY.CLOSED : (counterStatus === 'PAUSED' ? FEASIBILITY.PAUSED : FEASIBILITY.SAFE),
       confidence: CONFIDENCE.INITIAL,
       closingTime,
     };
@@ -219,7 +228,7 @@ export function calculateFullEstimation({
   const estimatedServiceMinutes = service.averageProcessingTime || 10;
   const estimatedServiceStart = calculateEstimatedServiceStart(now, estimatedWaitMinutes);
   const estimatedCompletion = calculateEstimatedCompletion(now, estimatedWaitMinutes, estimatedServiceMinutes);
-  const feasibility = calculateQueueFeasibility(estimatedCompletion, closingTime);
+  const feasibility = calculateQueueFeasibility(estimatedCompletion, closingTime, counterStatus);
   const confidence = getConfidenceLevel(service.completedCount || 0);
 
   return {

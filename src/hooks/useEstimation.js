@@ -48,6 +48,30 @@ export function useEstimation(serviceId, counterId = null, targetEntryId = null)
       }
     }
 
+    // Target counter and status resolution
+    const targetCounter = counterId ? counters.find(c => c.id === counterId) : null;
+    const serviceCounters = counters.filter(c => c.supportedServices?.includes(serviceId));
+    
+    let counterStatus = 'OPEN';
+    if (targetCounter) {
+      counterStatus = targetCounter.status || 'OPEN';
+    } else if (serviceCounters.length > 0) {
+      if (serviceCounters.every(c => c.status === 'CLOSED')) {
+        counterStatus = 'CLOSED';
+      } else if (serviceCounters.every(c => c.status === 'PAUSED')) {
+        counterStatus = 'PAUSED';
+      } else if (serviceCounters.some(c => c.status === 'OPEN')) {
+        counterStatus = 'OPEN';
+      } else {
+        counterStatus = 'CLOSED';
+      }
+    } else if (counters.length > 0) {
+      counterStatus = 'CLOSED';
+    }
+
+    const isCounterClosed = counterStatus === 'CLOSED';
+    const isCounterPaused = counterStatus === 'PAUSED';
+
     // Get active counters supporting this service
     const activeCounters = counterId
       ? counters.filter(c => c.id === counterId && c.status === 'OPEN')
@@ -77,8 +101,8 @@ export function useEstimation(serviceId, counterId = null, targetEntryId = null)
 
     // Closing time calculation
     let closingTime = null;
-    if (counterId) {
-      const counter = counters.find(c => c.id === counterId);
+    if (targetCounter || counterId) {
+      const counter = targetCounter || counters.find(c => c.id === counterId);
       const closeStr = counter?.operatingHours?.close || counter?.closingTime;
       if (closeStr && typeof closeStr === 'string' && closeStr.includes(':')) {
         const [h, m] = closeStr.split(':').map(Number);
@@ -95,11 +119,15 @@ export function useEstimation(serviceId, counterId = null, targetEntryId = null)
       closingTime.setHours(17, 0, 0, 0);
     }
 
-    const feasibility = calculateQueueFeasibility(estimatedCompletionTime, closingTime);
+    const feasibility = calculateQueueFeasibility(estimatedCompletionTime, closingTime, counterStatus);
     const confidence = getConfidenceLevel(service.completedCount || 0);
 
     return {
       service,
+      counter: targetCounter || null,
+      counterStatus,
+      isCounterClosed,
+      isCounterPaused,
       estimatedWaitMinutes,
       estimatedCompletionTime,
       feasibility,

@@ -68,6 +68,9 @@ export function LiveTracking() {
       feasibility: estimationRaw.feasibility,
       confidence: estimationRaw.confidence,
       closingTime: estimationRaw.closingTime,
+      counterStatus: estimationRaw.counterStatus,
+      isCounterClosed: estimationRaw.isCounterClosed,
+      isCounterPaused: estimationRaw.isCounterPaused,
     };
   }, [service, estimationRaw]);
 

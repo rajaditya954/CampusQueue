@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Typography, Paper, Divider, Stack, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, Paper, Divider, Stack, IconButton, Tooltip, Alert } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PeopleIcon from '@mui/icons-material/People';
 import EventIcon from '@mui/icons-material/Event';
@@ -44,13 +44,38 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
     feasibility,
     confidence,
     closingTime,
+    isCounterClosed: propIsCounterClosed,
+    isCounterPaused: propIsCounterPaused,
+    counterStatus,
   } = estimation;
+
+  const isClosed = propIsCounterClosed || counterStatus === 'CLOSED' || feasibility === 'CLOSED';
+  const isPaused = propIsCounterPaused || counterStatus === 'PAUSED' || feasibility === 'PAUSED';
 
   // Calculate live times dynamically from current clock time `now`
   const dynamicServiceStart = new Date(now.getTime() + (estimatedWaitMinutes || 0) * 60000);
   const dynamicCompletion = new Date(now.getTime() + ((estimatedWaitMinutes || 0) + (estimatedServiceMinutes || 0)) * 60000);
 
   const formattedLastUpdated = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+  // Metric display values based on counter operational status
+  const waitTimeDisplay = isClosed
+    ? 'Unavailable (Counter Closed)'
+    : isPaused
+    ? `${formatDuration(estimatedWaitMinutes)} (Paused)`
+    : formatDuration(estimatedWaitMinutes);
+
+  const serviceStartDisplay = isClosed
+    ? 'Unavailable (Counter Closed)'
+    : isPaused
+    ? `${formatTime(dynamicServiceStart)} (Paused)`
+    : formatTime(dynamicServiceStart);
+
+  const completionDisplay = isClosed
+    ? 'Unavailable (Counter Closed)'
+    : isPaused
+    ? `${formatTime(dynamicCompletion)} (Paused)`
+    : formatTime(dynamicCompletion);
 
   return (
     <Paper
@@ -59,7 +84,7 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
         p: { xs: 3, sm: 4 },
         borderRadius: 4,
         border: '1px solid',
-        borderColor: 'divider',
+        borderColor: isClosed ? 'error.light' : isPaused ? 'warning.light' : 'divider',
         bgcolor: 'background.paper',
         boxShadow: '0 4px 20px rgba(15, 23, 42, 0.04)',
       }}
@@ -70,7 +95,7 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
           display: 'flex',
           justify: 'space-between',
           alignItems: 'center',
-          mb: 3,
+          mb: 2.5,
           pb: 2,
           borderBottom: '1px solid',
           borderColor: 'divider',
@@ -82,12 +107,16 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
               width: 10,
               height: 10,
               borderRadius: '50%',
-              bgcolor: 'success.main',
-              boxShadow: '0 0 10px rgba(76, 175, 80, 0.9)',
+              bgcolor: isClosed ? 'error.main' : isPaused ? 'warning.main' : 'success.main',
+              boxShadow: isClosed
+                ? '0 0 10px rgba(239, 68, 68, 0.8)'
+                : isPaused
+                ? '0 0 10px rgba(245, 158, 11, 0.8)'
+                : '0 0 10px rgba(76, 175, 80, 0.9)',
             }}
           />
           <Typography variant="h6" fontWeight={800} color="text.primary" sx={{ fontSize: '1.2rem' }}>
-            Real-Time Estimates
+            {isClosed ? 'Counter Closed — Status' : 'Real-Time Estimates'}
           </Typography>
         </Box>
 
@@ -118,6 +147,18 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
         </Box>
       </Box>
 
+      {/* Operational status alerts */}
+      {isClosed && (
+        <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>
+          <strong>Counter is Currently Closed:</strong> This counter is not serving tokens right now. Service and wait estimates will resume once the counter is reopened.
+        </Alert>
+      )}
+      {isPaused && (
+        <Alert severity="warning" sx={{ mb: 2.5, borderRadius: 2 }}>
+          <strong>Counter is Paused:</strong> Token calling is temporarily paused at this counter.
+        </Alert>
+      )}
+
       {/* Main Metrics */}
       <Stack spacing={3}>
         {/* People Ahead */}
@@ -129,10 +170,10 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
 
         {/* Estimated Wait */}
         <MetricRow
-          icon={<AccessTimeIcon color="action" sx={{ fontSize: '1.8rem' }} />}
+          icon={<AccessTimeIcon color={isClosed ? 'error' : 'action'} sx={{ fontSize: '1.8rem' }} />}
           label="Estimated waiting time"
-          value={formatDuration(estimatedWaitMinutes)}
-          highlight
+          value={waitTimeDisplay}
+          highlight={!isClosed && !isPaused}
         />
 
         {showDetails && (
@@ -148,18 +189,18 @@ export default function EstimationCard({ estimation, showDetails = true, onRefre
 
             {/* Estimated Counter Approach Time */}
             <MetricRow
-              icon={<DirectionsWalkIcon color="primary" sx={{ fontSize: '2.2rem' }} />}
+              icon={<DirectionsWalkIcon color={isClosed ? 'disabled' : 'primary'} sx={{ fontSize: '2.2rem' }} />}
               label="Estimated counter approach time"
-              value={formatTime(dynamicServiceStart)}
-              highlight
-              large
+              value={serviceStartDisplay}
+              highlight={!isClosed && !isPaused}
+              large={!isClosed}
             />
 
             {/* Completion Time */}
             <MetricRow
               icon={<EventIcon color="action" sx={{ fontSize: '1.8rem' }} />}
               label="Estimated completion"
-              value={formatTime(dynamicCompletion)}
+              value={completionDisplay}
             />
 
             {/* Counter Closing */}

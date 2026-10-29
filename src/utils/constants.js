@@ -28,6 +28,8 @@ export const FEASIBILITY = {
   SAFE: 'SAFE',
   TIGHT: 'TIGHT',
   TOO_LATE: 'TOO_LATE',
+  CLOSED: 'CLOSED',
+  PAUSED: 'PAUSED',
 };
 
 // Confidence Levels
@@ -56,6 +58,18 @@ export const FEASIBILITY_CONFIG = {
     icon: '🔴',
     color: 'error',
     description: 'You are unlikely to complete this request before closing.',
+  },
+  [FEASIBILITY.CLOSED]: {
+    label: 'Counter closed - Service unavailable',
+    icon: '🔴',
+    color: 'error',
+    description: 'This counter is currently closed and not processing requests.',
+  },
+  [FEASIBILITY.PAUSED]: {
+    label: 'Counter paused',
+    icon: '🟡',
+    color: 'warning',
+    description: 'This counter is temporarily paused. Service may be delayed.',
   },
 };
 

@@ -38,9 +38,26 @@ export function canCompleteBeforeClosing(estimatedCompletion, closingTime) {
  * @param {Date} estimatedCompletion 
  * @param {Date} closingTime 
  * @param {number} [bufferMinutes] - Buffer for "TIGHT" status
+ * @param {string} [counterStatus] - Counter status ('OPEN', 'CLOSED', 'PAUSED')
  * @returns {{ status: string, minutesBeforeClosing: number, message: string }}
  */
-export function getFeasibilityStatus(estimatedCompletion, closingTime, bufferMinutes = TIGHT_BUFFER_MINUTES) {
+export function getFeasibilityStatus(estimatedCompletion, closingTime, bufferMinutes = TIGHT_BUFFER_MINUTES, counterStatus = null) {
+  if (counterStatus === 'CLOSED') {
+    return {
+      status: FEASIBILITY.CLOSED,
+      minutesBeforeClosing: 0,
+      message: 'This counter is currently closed and not processing requests.',
+    };
+  }
+
+  if (counterStatus === 'PAUSED') {
+    return {
+      status: FEASIBILITY.PAUSED,
+      minutesBeforeClosing: 0,
+      message: 'This counter is temporarily paused. Service may be delayed.',
+    };
+  }
+
   if (!estimatedCompletion || !closingTime) {
     return {
       status: FEASIBILITY.SAFE,

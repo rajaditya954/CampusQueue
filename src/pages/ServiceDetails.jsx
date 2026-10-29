@@ -83,8 +83,11 @@ export function ServiceDetails() {
       feasibility: estimationRaw.feasibility,
       confidence: estimationRaw.confidence,
       closingTime: estimationRaw.closingTime,
+      counterStatus: estimationRaw.counterStatus,
+      isCounterClosed: estimationRaw.isCounterClosed || isCounterClosed,
+      isCounterPaused: estimationRaw.isCounterPaused,
     };
-  }, [service, estimationRaw]);
+  }, [service, estimationRaw, isCounterClosed]);
 
   if (!service) {
     return (
@@ -307,7 +310,7 @@ export function ServiceDetails() {
                   variant="contained"
                   size="large"
                   startIcon={<ConfirmationNumberIcon />}
-                  disabled={supportedCounters.length === 0 || isCounterClosed || (estimationData?.feasibility === 'TOO_LATE' && !isCounterExplicitlyOpen)}
+                  disabled={supportedCounters.length === 0 || isCounterClosed || estimationData?.feasibility === 'CLOSED' || (estimationData?.feasibility === 'TOO_LATE' && !isCounterExplicitlyOpen)}
                   onClick={handleJoinQueue}
                   sx={{
                     py: 1.5,
@@ -315,16 +318,18 @@ export function ServiceDetails() {
                     fontWeight: 700,
                     fontSize: '1rem',
                     textTransform: 'none',
-                    background: (isCounterClosed || (estimationData?.feasibility === 'TOO_LATE' && !isCounterExplicitlyOpen))
+                    background: (isCounterClosed || estimationData?.feasibility === 'CLOSED' || (estimationData?.feasibility === 'TOO_LATE' && !isCounterExplicitlyOpen))
                       ? '#94a3b8'
                       : 'linear-gradient(135deg, #1a73e8 0%, #1565c0 100%)',
-                    boxShadow: (isCounterClosed || (estimationData?.feasibility === 'TOO_LATE' && !isCounterExplicitlyOpen)) ? 'none' : '0 4px 14px rgba(26, 115, 232, 0.3)',
+                    boxShadow: (isCounterClosed || estimationData?.feasibility === 'CLOSED' || (estimationData?.feasibility === 'TOO_LATE' && !isCounterExplicitlyOpen)) ? 'none' : '0 4px 14px rgba(26, 115, 232, 0.3)',
                   }}
                 >
                   {supportedCounters.length === 0
                     ? 'No Counter Available'
-                    : isCounterClosed
+                    : (isCounterClosed || estimationData?.feasibility === 'CLOSED')
                     ? 'Counter Closed - Cannot Join'
+                    : (estimationData?.isCounterPaused || estimationData?.feasibility === 'PAUSED')
+                    ? 'Counter Paused - Please Wait'
                     : (estimationData?.feasibility === 'TOO_LATE' && !isCounterExplicitlyOpen)
                     ? 'Operating Hours Ended - Cannot Join'
                     : 'Get Digital Token Now'}
