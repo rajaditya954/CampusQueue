@@ -20,6 +20,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import InfoIcon from '@mui/icons-material/Info';
+import ErrorIcon from '@mui/icons-material/Error';
 import { useQueue } from '../hooks/useQueue';
 import { useServices } from '../hooks/useServices';
 import { useCounters } from '../hooks/useCounters';
@@ -72,32 +73,77 @@ export default function Landing() {
   // Auto-select first service once estimator services are available
   const effectiveSelectedId = selectedServiceId || (estimatorServices[0]?.id ?? null);
 
-  // Find counters that serve the selected service
-  const counterIdsForService = useMemo(() => {
+  // Cross-schema alias map ensuring compatibility between demo mode and live Firestore IDs
+  const SERVICE_ALIASES = useMemo(() => ({
+    'doc_verify': ['document-verification', 'svc-doc-verification', 'doc_verify'],
+    'document-verification': ['document-verification', 'svc-doc-verification', 'doc_verify'],
+    'svc-doc-verification': ['document-verification', 'svc-doc-verification', 'doc_verify'],
+    
+    'fee_payment': ['cash-payment', 'svc-fee-payment', 'fee_payment'],
+    'cash-payment': ['cash-payment', 'svc-fee-payment', 'fee_payment'],
+    'svc-fee-payment': ['cash-payment', 'svc-fee-payment', 'fee_payment'],
+
+    'cert_req': ['certificate-request', 'svc-bonafide', 'svc-transcript', 'cert_req'],
+    'certificate-request': ['certificate-request', 'svc-bonafide', 'svc-transcript', 'cert_req'],
+    'svc-bonafide': ['certificate-request', 'svc-bonafide', 'svc-transcript', 'cert_req'],
+
+    'gen_inquiry': ['admission-enquiry', 'svc-general', 'gen_inquiry'],
+    'admission-enquiry': ['admission-enquiry', 'svc-general', 'gen_inquiry'],
+    'svc-general': ['admission-enquiry', 'svc-general', 'gen_inquiry'],
+  }), []);
+
+  // Find all counters configured to serve the selected service
+  const serviceCounters = useMemo(() => {
     if (!effectiveSelectedId || !counters) return [];
-    return counters
-      .filter(c => c.supportedServices?.includes(effectiveSelectedId))
-      .map(c => c.id);
-  }, [effectiveSelectedId, counters]);
+    const aliases = SERVICE_ALIASES[effectiveSelectedId] || [effectiveSelectedId];
+    return counters.filter(c => c.supportedServices?.some(sId => aliases.includes(sId)));
+  }, [effectiveSelectedId, counters, SERVICE_ALIASES]);
+
+  const counterIdsForService = useMemo(() => {
+    return serviceCounters.map(c => c.id);
+  }, [serviceCounters]);
+
+  // Operational status of serving counters
+  const isCounterClosed = useMemo(() => {
+    if (serviceCounters.length === 0) return false;
+    return serviceCounters.every(c => c.status === 'CLOSED');
+  }, [serviceCounters]);
+
+  const isCounterPaused = useMemo(() => {
+    if (serviceCounters.length === 0) return false;
+    return serviceCounters.every(c => c.status === 'PAUSED');
+  }, [serviceCounters]);
 
   const activeCountersCount = useMemo(() => {
     if (!effectiveSelectedId) return 1;
-    const active = getActiveCountersForService(effectiveSelectedId);
+    const active = serviceCounters.filter(c => c.status === 'OPEN');
     return active.length || 1;
-  }, [effectiveSelectedId, getActiveCountersForService]);
+  }, [effectiveSelectedId, serviceCounters]);
 
-  // Filter waiting entries to only those assigned to counters handling the selected service
+  // Filter waiting entries STRICTLY to only those queued for this specific service / serving counter
   const waitingEntriesFromDB = useMemo(() => {
+    const aliases = SERVICE_ALIASES[effectiveSelectedId] || [effectiveSelectedId];
     return (queueEntries || [])
-      .filter(e => e.status === 'WAITING' && counterIdsForService.includes(e.counterId))
+      .filter(e => {
+        if (e.status !== 'WAITING') return false;
+        // If specific counters serve this service, entry MUST match one of them
+        if (counterIdsForService.length > 0) {
+          if (e.counterId && !counterIdsForService.includes(e.counterId)) {
+            return false;
+          }
+        }
+        const matchesCounter = Boolean(e.counterId && counterIdsForService.includes(e.counterId));
+        const matchesService = Boolean(e.serviceId && aliases.includes(e.serviceId));
+        return matchesCounter || matchesService;
+      })
       .map((item, idx) => ({
         id: item.id,
         tokenNumber: item.tokenNumber || `T-${item.id?.substring(0, 4)}`,
         serviceName: servicesMap[item.serviceId]?.name || item.serviceName || 'Campus Service',
-        duration: servicesMap[item.serviceId]?.averageProcessingTime || servicesMap[item.serviceId]?.avgTimeMinutes || item.avgTimeMinutes || 5,
+        duration: Math.min(30, Math.max(1, servicesMap[item.serviceId]?.averageProcessingTime || servicesMap[item.serviceId]?.avgTimeMinutes || item.avgTimeMinutes || 5)),
         step: `0${idx + 1}`,
       }));
-  }, [queueEntries, counterIdsForService, servicesMap]);
+  }, [queueEntries, counterIdsForService, effectiveSelectedId, servicesMap, SERVICE_ALIASES]);
 
   const selectedService = estimatorServices.find(s => s.id === effectiveSelectedId) || estimatorServices[0];
   // Total raw wait divided by the number of parallel active counters serving this service
@@ -499,9 +545,23 @@ export default function Landing() {
 
                   <Stack spacing={0.6} sx={{ mb: 1.5 }}>
                     {waitingEntriesFromDB.length === 0 ? (
-                      <Box sx={{ p: 1.2, textAlign: 'center', bgcolor: '#f8fafc', borderRadius: 2, border: '1px dashed #cbd5e1' }}>
-                        <Typography variant="body2" color="text.secondary" fontWeight={500} sx={{ fontSize: '0.85rem' }}>
-                          No queue currently — instant counter service!
+                      <Box sx={{
+                        p: 1.2,
+                        textAlign: 'center',
+                        bgcolor: isCounterClosed ? '#fef2f2' : '#f8fafc',
+                        borderRadius: 2,
+                        border: '1px dashed',
+                        borderColor: isCounterClosed ? '#fca5a5' : '#cbd5e1',
+                      }}>
+                        <Typography
+                          variant="body2"
+                          color={isCounterClosed ? 'error.main' : 'text.secondary'}
+                          fontWeight={500}
+                          sx={{ fontSize: '0.85rem' }}
+                        >
+                          {isCounterClosed
+                            ? 'Serving counter is currently closed — queue is paused.'
+                            : 'No queue currently — instant counter service!'}
                         </Typography>
                       </Box>
                     ) : (
@@ -512,25 +572,32 @@ export default function Landing() {
                             p: 0.8,
                             px: 1.2,
                             borderRadius: 1.8,
-                            bgcolor: '#f8fafc',
-                            border: '1px solid #e2e8f0',
+                            bgcolor: isCounterClosed ? '#fef2f2' : '#f8fafc',
+                            border: '1px solid',
+                            borderColor: isCounterClosed ? '#fecaca' : '#e2e8f0',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
                           }}
                         >
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                            <Typography variant="caption" fontWeight={800} color="#94a3b8" sx={{ fontSize: '0.65rem' }}>
+                            <Typography variant="caption" fontWeight={800} color={isCounterClosed ? '#ef4444' : '#94a3b8'} sx={{ fontSize: '0.65rem' }}>
                               {item.step}
                             </Typography>
-                            <Typography variant="body2" fontWeight={600} color="#334155" sx={{ fontSize: '0.84rem' }}>
+                            <Typography variant="body2" fontWeight={600} color={isCounterClosed ? '#991b1b' : '#334155'} sx={{ fontSize: '0.84rem' }}>
                               #{item.tokenNumber} · {item.serviceName}
                             </Typography>
                           </Box>
                           <Chip
-                            label={`+${item.duration}m`}
+                            label={isCounterClosed ? 'Paused' : `+${item.duration}m`}
                             size="small"
-                            sx={{ bgcolor: '#e2e8f0', color: '#334155', fontWeight: 700, fontSize: '0.6rem', height: 18 }}
+                            sx={{
+                              bgcolor: isCounterClosed ? '#fee2e2' : '#e2e8f0',
+                              color: isCounterClosed ? '#b91c1c' : '#334155',
+                              fontWeight: 700,
+                              fontSize: '0.6rem',
+                              height: 18,
+                            }}
                           />
                         </Box>
                       ))
@@ -542,8 +609,9 @@ export default function Landing() {
                     elevation={0}
                     sx={{
                       p: 1.4,
-                      bgcolor: '#f0fdf4',
-                      border: '1px solid #bbf7d0',
+                      bgcolor: isCounterClosed ? '#fef2f2' : isCounterPaused ? '#fffbeb' : '#f0fdf4',
+                      border: '1px solid',
+                      borderColor: isCounterClosed ? '#fecaca' : isCounterPaused ? '#fde68a' : '#bbf7d0',
                       borderRadius: 2,
                       display: 'flex',
                       alignItems: 'center',
@@ -552,20 +620,36 @@ export default function Landing() {
                     }}
                   >
                     <Box>
-                      <Typography variant="caption" color="#166534" fontWeight={700} display="block" sx={{ textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: 0.4 }}>
-                        Calculated Wait Time
+                      <Typography
+                        variant="caption"
+                        color={isCounterClosed ? '#991b1b' : isCounterPaused ? '#92400e' : '#166534'}
+                        fontWeight={700}
+                        display="block"
+                        sx={{ textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: 0.4 }}
+                      >
+                        {isCounterClosed ? 'Counter Status' : 'Calculated Wait Time'}
                       </Typography>
-                      <Typography variant="h6" fontWeight={800} color="#14532d" sx={{ fontSize: '1.3rem', mt: 0.1 }}>
-                        ~{totalCalculatedWait} min
+                      <Typography
+                        variant="h6"
+                        fontWeight={800}
+                        color={isCounterClosed ? '#dc2626' : isCounterPaused ? '#b45309' : '#14532d'}
+                        sx={{ fontSize: isCounterClosed ? '1.15rem' : '1.3rem', mt: 0.1 }}
+                      >
+                        {isCounterClosed
+                          ? 'Counter Closed'
+                          : isCounterPaused
+                          ? `~${totalCalculatedWait} min (Paused)`
+                          : `~${totalCalculatedWait} min`}
                       </Typography>
                     </Box>
                     <Button
                       variant="contained"
                       size="small"
+                      disabled={isCounterClosed}
                       onClick={() => navigate('/login')}
                       endIcon={<ArrowForwardIcon sx={{ fontSize: '0.75rem !important' }} />}
                       sx={{
-                        bgcolor: '#16a34a',
+                        bgcolor: isCounterClosed ? '#94a3b8' : isCounterPaused ? '#d97706' : '#16a34a',
                         color: 'white',
                         fontWeight: 700,
                         borderRadius: 5,
@@ -573,11 +657,11 @@ export default function Landing() {
                         py: 0.6,
                         fontSize: '0.84rem',
                         textTransform: 'none',
-                        boxShadow: '0 2px 6px rgba(22, 163, 74, 0.25)',
-                        '&:hover': { bgcolor: '#15803d' },
+                        boxShadow: isCounterClosed ? 'none' : '0 2px 6px rgba(22, 163, 74, 0.25)',
+                        '&:hover': { bgcolor: isCounterClosed ? '#94a3b8' : isCounterPaused ? '#b45309' : '#15803d' },
                       }}
                     >
-                      Get Token
+                      {isCounterClosed ? 'Closed' : 'Get Token'}
                     </Button>
                   </Paper>
 
@@ -586,7 +670,11 @@ export default function Landing() {
                     sx={{
                       p: 1,
                       px: 1.2,
-                      bgcolor: totalCalculatedWait <= 20 ? 'rgba(37, 99, 235, 0.05)' : 'rgba(245, 158, 11, 0.07)',
+                      bgcolor: isCounterClosed
+                        ? 'rgba(239, 68, 68, 0.08)'
+                        : isCounterPaused
+                        ? 'rgba(245, 158, 11, 0.08)'
+                        : (totalCalculatedWait <= 20 ? 'rgba(37, 99, 235, 0.05)' : 'rgba(245, 158, 11, 0.07)'),
                       borderRadius: 1.8,
                       display: 'flex',
                       alignItems: 'center',
@@ -594,9 +682,22 @@ export default function Landing() {
                     }}
                   >
                     <Stack direction="row" spacing={0.5} alignItems="center">
-                      <CheckCircleIcon sx={{ fontSize: '0.8rem', color: totalCalculatedWait <= 20 ? '#2563eb' : '#d97706' }} />
-                      <Typography variant="caption" fontWeight={600} color={totalCalculatedWait <= 20 ? '#1e40af' : '#92400e'} sx={{ fontSize: '0.68rem' }}>
-                        {totalCalculatedWait <= 20 ? 'Optimal time to visit' : 'Moderate queue volume'}
+                      {isCounterClosed ? (
+                        <ErrorIcon sx={{ fontSize: '0.85rem', color: '#dc2626' }} />
+                      ) : (
+                        <CheckCircleIcon sx={{ fontSize: '0.8rem', color: totalCalculatedWait <= 20 ? '#2563eb' : '#d97706' }} />
+                      )}
+                      <Typography
+                        variant="caption"
+                        fontWeight={600}
+                        color={isCounterClosed ? '#b91c1c' : isCounterPaused ? '#92400e' : (totalCalculatedWait <= 20 ? '#1e40af' : '#92400e')}
+                        sx={{ fontSize: '0.68rem' }}
+                      >
+                        {isCounterClosed
+                          ? 'Counter is closed — Operating hours ended'
+                          : isCounterPaused
+                          ? 'Counter is paused — Service delayed'
+                          : (totalCalculatedWait <= 20 ? 'Optimal time to visit' : 'Moderate queue volume')}
                       </Typography>
                     </Stack>
                     <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.64rem' }}>
