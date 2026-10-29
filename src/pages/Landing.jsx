@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box, Typography, Button, Container, Grid, Card, Stack,
@@ -22,35 +22,87 @@ import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import InfoIcon from '@mui/icons-material/Info';
 import { useQueue } from '../hooks/useQueue';
 import { useServices } from '../hooks/useServices';
+import { useCounters } from '../hooks/useCounters';
 import coverBg from '../assets/campus_cover_bg.png';
 
-const ESTIMATOR_SERVICES = [
-  { id: 'doc_verify', name: 'Document Verification', icon: <DescriptionIcon sx={{ fontSize: '0.95rem' }} />, avgMin: 8, desc: 'Original certificate check' },
-  { id: 'fee_payment', name: 'Fee & Cash Payment', icon: <PaymentsIcon sx={{ fontSize: '0.95rem' }} />, avgMin: 3, desc: 'Fee & fine collection' },
-  { id: 'cert_req', name: 'Certificate Request', icon: <WorkspacePremiumIcon sx={{ fontSize: '0.95rem' }} />, avgMin: 5, desc: 'Degree certificate issue' },
-  { id: 'gen_inquiry', name: 'General Inquiry', icon: <InfoIcon sx={{ fontSize: '0.95rem' }} />, avgMin: 4, desc: 'Student assistance desk' },
-];
+// Icons map for estimator display cards
+const ESTIMATOR_ICONS = {
+  'document-verification': <DescriptionIcon sx={{ fontSize: '0.95rem' }} />,
+  'cash-payment': <PaymentsIcon sx={{ fontSize: '0.95rem' }} />,
+  'certificate-request': <WorkspacePremiumIcon sx={{ fontSize: '0.95rem' }} />,
+  'admission-enquiry': <InfoIcon sx={{ fontSize: '0.95rem' }} />,
+  // Fallbacks for seed data service IDs
+  'svc-doc-verification': <DescriptionIcon sx={{ fontSize: '0.95rem' }} />,
+  'svc-fee-payment': <PaymentsIcon sx={{ fontSize: '0.95rem' }} />,
+  'svc-bonafide': <WorkspacePremiumIcon sx={{ fontSize: '0.95rem' }} />,
+  'svc-general': <InfoIcon sx={{ fontSize: '0.95rem' }} />,
+};
+
+const FALLBACK_ICON = <InfoIcon sx={{ fontSize: '0.95rem' }} />;
 
 export default function Landing() {
   const navigate = useNavigate();
   const { queueEntries } = useQueue();
-  const { servicesMap } = useServices();
+  const { services, servicesMap } = useServices();
+  const { counters, getActiveCountersForService } = useCounters();
 
-  const [selectedServiceId, setSelectedServiceId] = useState('doc_verify');
+  // Build estimator services dynamically from Firestore services
+  const estimatorServices = useMemo(() => {
+    if (!services || services.length === 0) {
+      // Fallback to hardcoded list if Firestore services haven't loaded yet
+      return [
+        { id: 'document-verification', name: 'Document Verification', icon: <DescriptionIcon sx={{ fontSize: '0.95rem' }} />, avgMin: 8 },
+        { id: 'cash-payment', name: 'Fee & Cash Payment', icon: <PaymentsIcon sx={{ fontSize: '0.95rem' }} />, avgMin: 3 },
+        { id: 'certificate-request', name: 'Certificate Request', icon: <WorkspacePremiumIcon sx={{ fontSize: '0.95rem' }} />, avgMin: 5 },
+        { id: 'admission-enquiry', name: 'General Inquiry', icon: <InfoIcon sx={{ fontSize: '0.95rem' }} />, avgMin: 4 },
+      ];
+    }
+    return services
+      .filter(s => s.isActive !== false && s.active !== false)
+      .slice(0, 4) // Show max 4 in the estimator widget
+      .map(s => ({
+        id: s.id,
+        name: s.name,
+        icon: ESTIMATOR_ICONS[s.id] || FALLBACK_ICON,
+        avgMin: s.averageProcessingTime || s.estimatedDuration || 5,
+      }));
+  }, [services]);
 
-  // Filter actual waiting entries strictly from Firestore / DB
-  const waitingEntriesFromDB = (queueEntries || [])
-    .filter(e => e.status === 'WAITING')
-    .map((item, idx) => ({
-      id: item.id,
-      tokenNumber: item.tokenNumber || `T-${item.id?.substring(0, 4)}`,
-      serviceName: servicesMap[item.serviceId]?.name || item.serviceName || 'Campus Service',
-      duration: servicesMap[item.serviceId]?.avgTimeMinutes || item.avgTimeMinutes || 5,
-      step: `0${idx + 1}`,
-    }));
+  const [selectedServiceId, setSelectedServiceId] = useState(null);
+  // Auto-select first service once estimator services are available
+  const effectiveSelectedId = selectedServiceId || (estimatorServices[0]?.id ?? null);
 
-  const selectedService = ESTIMATOR_SERVICES.find(s => s.id === selectedServiceId) || ESTIMATOR_SERVICES[0];
-  const totalCalculatedWait = waitingEntriesFromDB.reduce((acc, curr) => acc + (curr.duration || 5), 0);
+  // Find counters that serve the selected service
+  const counterIdsForService = useMemo(() => {
+    if (!effectiveSelectedId || !counters) return [];
+    return counters
+      .filter(c => c.supportedServices?.includes(effectiveSelectedId))
+      .map(c => c.id);
+  }, [effectiveSelectedId, counters]);
+
+  const activeCountersCount = useMemo(() => {
+    if (!effectiveSelectedId) return 1;
+    const active = getActiveCountersForService(effectiveSelectedId);
+    return active.length || 1;
+  }, [effectiveSelectedId, getActiveCountersForService]);
+
+  // Filter waiting entries to only those assigned to counters handling the selected service
+  const waitingEntriesFromDB = useMemo(() => {
+    return (queueEntries || [])
+      .filter(e => e.status === 'WAITING' && counterIdsForService.includes(e.counterId))
+      .map((item, idx) => ({
+        id: item.id,
+        tokenNumber: item.tokenNumber || `T-${item.id?.substring(0, 4)}`,
+        serviceName: servicesMap[item.serviceId]?.name || item.serviceName || 'Campus Service',
+        duration: servicesMap[item.serviceId]?.averageProcessingTime || servicesMap[item.serviceId]?.avgTimeMinutes || item.avgTimeMinutes || 5,
+        step: `0${idx + 1}`,
+      }));
+  }, [queueEntries, counterIdsForService, servicesMap]);
+
+  const selectedService = estimatorServices.find(s => s.id === effectiveSelectedId) || estimatorServices[0];
+  // Total raw wait divided by the number of parallel active counters serving this service
+  const totalRawWait = waitingEntriesFromDB.reduce((acc, curr) => acc + (curr.duration || 5), 0);
+  const totalCalculatedWait = Math.max(0, Math.ceil(totalRawWait / activeCountersCount));
   const peopleAheadCount = waitingEntriesFromDB.length;
 
   return (
@@ -400,8 +452,8 @@ export default function Landing() {
                   </Typography>
 
                   <Grid container spacing={1} sx={{ mb: 1.8 }}>
-                    {ESTIMATOR_SERVICES.map((serv) => {
-                      const isSelected = serv.id === selectedServiceId;
+                    {estimatorServices.map((serv) => {
+                      const isSelected = serv.id === effectiveSelectedId;
                       return (
                         <Grid size={{ xs: 6 }} key={serv.id}>
                           <Paper
